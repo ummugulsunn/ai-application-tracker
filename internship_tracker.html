@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erasmus Staj Başvuru Takip Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 2px solid #ecf0f1;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #219a52);
+        }
+        
+        .btn-export {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+        }
+        
+        select, input {
+            padding: 8px 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 20px;
+            font-size: 0.9em;
+            transition: border-color 0.3s ease;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 0 30px 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        th {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.9em;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .status-beklemede {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-gonderildi {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cevaplandi {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-red {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .editable {
+            background: transparent;
+            border: 1px dashed #ddd;
+            padding: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .editable:hover {
+            background: #f8f9fa;
+            border-color: #3498db;
+        }
+        
+        .country-flag {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        .stipend {
+            font-weight: 600;
+            color: #27ae60;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.7em;
+            border-radius: 12px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            height: 80px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                margin-bottom: 10px;
+            }
+            
+            th, td {
+                padding: 8px 5px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Erasmus Staj Başvuru Takip Sistemi</h1>
+            <p>İskandinav Ülkeleri - Şirket Başvuru Yönetimi</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-companies">28</div>
+                <div class="stat-label">Toplam Şirket</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sent-applications">0</div>
+                <div class="stat-label">Gönderilen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pending-responses">0</div>
+                <div class="stat-label">Cevap Bekleyen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="success-rate">0%</div>
+                <div class="stat-label">Başarı Oranı</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-success" onclick="addNewApplication()">
+                ➕ Yeni Başvuru Ekle
+            </button>
+            <button class="btn btn-export" onclick="exportToCSV()">
+                📊 CSV'ye Aktar
+            </button>
+            <select id="country-filter" onchange="filterTable()">
+                <option value="all">Tüm Ülkeler</option>
+                <option value="İsveç">🇸🇪 İsveç</option>
+                <option value="Norveç">🇳🇴 Norveç</option>
+                <option value="Danimarka">🇩🇰 Danimarka</option>
+            </select>
+            <select id="status-filter" onchange="filterTable()">
+                <option value="all">Tüm Durumlar</option>
+                <option value="Beklemede">Beklemede</option>
+                <option value="E-posta Gönderildi">E-posta Gönderildi</option>
+                <option value="Cevap Alındı">Cevap Alındı</option>
+                <option value="Reddedildi">Reddedildi</option>
+                <option value="Kabul Edildi">Kabul Edildi</option>
+            </select>
+            <input type="text" id="search-input" placeholder="🔍 Şirket ara..." onkeyup="searchTable()">
+        </div>
+        
+        <div class="table-container">
+            <table id="application-table">
+                <thead>
+                    <tr>
+                        <th>Şirket Adı</th>
+                        <th>Ülke</th>
+                        <th>Sektör</th>
+                        <th>İletişim</th>
+                        <th>Maaş</th>
+                        <th>E-posta Tarihi</th>
+                        <th>Cevap Tarihi</th>
+                        <th>Durum</th>
+                        <th>Notlar</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Tablo içeriği JavaScript ile doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Başvuru Düzenle</h2>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label>E-posta Tarihi:</label>
+                    <input type="date" id="edit-email-date">
+                </div>
+                <div class="form-group">
+                    <label>Cevap Tarihi:</label>
+                    <input type="date" id="edit-response-date">
+                </div>
+                <div class="form-group">
+                    <label>Durum:</label>
+                    <select id="edit-status">
+                        <option value="Beklemede">Beklemede</option>
+                        <option value="E-posta Gönderildi">E-posta Gönderildi</option>
+                        <option value="Cevap Alındı">Cevap Alındı</option>
+                        <option value="Reddedildi">Reddedildi</option>
+                        <option value="Kabul Edildi">Kabul Edildi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notlar:</label>
+                    <textarea id="edit-notes" placeholder="Başvuru ile ilgili notlarınızı yazın..."></textarea>
+                </div>
+                <button type="button" class="btn" onclick="saveChanges()">Değişiklikleri Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let companies = [];
+        let currentEditingRow = null;
+        
+        // Şirket verilerini initialize et
+        function initializeData() {
+            // İsveç şirketleri
+            const swedenCompanies = [
+                {company: "Spotify", country: "İsveç", sector: "Technology/Music", contact: "careers@spotify.com", stipend: "15,000 SEK/month"},
+                {company: "Klarna", country: "İsveç", sector: "Fintech", contact: "internships@klarna.com", stipend: "14,000 SEK/month"},
+                {company: "Ericsson", country: "İsveç", sector: "Telecommunications", contact: "career@ericsson.com", stipend: "12,000 SEK/month"},
+                {company: "Volvo Group", country: "İsveç", sector: "Automotive/Engineering", contact: "careers@volvo.com", stipend: "13,000 SEK/month"},
+                {company: "IKEA", country: "İsveç", sector: "Retail/Design", contact: "career@ikea.com", stipend: "12,500 SEK/month"},
+                {company: "King Digital", country: "İsveç", sector: "Gaming", contact: "careers@king.com", stipend: "14,500 SEK/month"},
+                {company: "Nordea Bank", country: "İsveç", sector: "Finance/Technology", contact: "talent@nordea.com", stipend: "13,500 SEK/month"},
+                {company: "H&M Group", country: "İsveç", sector: "Fashion/Retail", contact: "career@hm.com", stipend: "12,000 SEK/month"},
+                {company: "Tele2", country: "İsveç", sector: "Telecommunications", contact: "career@tele2.com", stipend: "12,500 SEK/month"},
+                {company: "Huawei Sweden", country: "İsveç", sector: "Technology/Cloud", contact: "career.sweden@huawei.com", stipend: "13,000 SEK/month"}
+            ];
+            
+            // Norveç şirketleri
+            const norwayCompanies = [
+                {company: "Telenor", country: "Norveç", sector: "Telecommunications", contact: "career@telenor.com", stipend: "18,000 NOK/month"},
+                {company: "Equinor", country: "Norveç", sector: "Energy/Engineering", contact: "careers@equinor.com", stipend: "20,000 NOK/month"},
+                {company: "Aker Solutions", country: "Norveç", sector: "Engineering/Energy", contact: "career@akersolutions.com", stipend: "19,000 NOK/month"},
+                {company: "DNV GL", country: "Norveç", sector: "Engineering/Maritime", contact: "careers@dnv.com", stipend: "18,500 NOK/month"},
+                {company: "Nordic Semiconductor", country: "Norveç", sector: "Technology/IoT", contact: "career@nordicsemi.no", stipend: "17,000 NOK/month"},
+                {company: "Statkraft", country: "Norveç", sector: "Renewable Energy", contact: "careers@statkraft.com", stipend: "18,000 NOK/month"},
+                {company: "Cognite", country: "Norveç", sector: "Industrial Software", contact: "careers@cognite.com", stipend: "17,500 NOK/month"},
+                {company: "Schibsted", country: "Norveç", sector: "Media/Technology", contact: "career@schibsted.com", stipend: "16,500 NOK/month"},
+                {company: "Visma", country: "Norveç", sector: "Software/Business", contact: "careers@visma.com", stipend: "17,000 NOK/month"},
+                {company: "Northern.tech", country: "Norveç", sector: "Cybersecurity", contact: "career@northern.tech", stipend: "16,000 NOK/month"}
+            ];
+            
+            // Danimarka şirketleri
+            const denmarkCompanies = [
+                {company: "Novo Nordisk", country: "Danimarka", sector: "Pharmaceuticals", contact: "careers@novonordisk.com", stipend: "15,000 DKK/month"},
+                {company: "Ørsted", country: "Danimarka", sector: "Renewable Energy", contact: "careers@orsted.com", stipend: "16,000 DKK/month"},
+                {company: "Vestas", country: "Danimarka", sector: "Wind Energy", contact: "careers@vestas.com", stipend: "15,500 DKK/month"},
+                {company: "Maersk", country: "Danimarka", sector: "Logistics/Maritime", contact: "careers@maersk.com", stipend: "14,500 DKK/month"},
+                {company: "Danfoss", country: "Danimarka", sector: "Engineering/Technology", contact: "careers@danfoss.com", stipend: "14,000 DKK/month"},
+                {company: "Coloplast", country: "Danimarka", sector: "Medical Technology", contact: "careers@coloplast.com", stipend: "13,500 DKK/month"},
+                {company: "Carlsberg Group", country: "Danimarka", sector: "FMCG/Engineering", contact: "careers@carlsberg.com", stipend: "13,000 DKK/month"},
+                {company: "TDC NET", country: "Danimarka", sector: "Telecommunications", contact: "career@tdc.dk", stipend: "13,500 DKK/month"}
+            ];
+            
+            companies = [...swedenCompanies, ...norwayCompanies, ...denmarkCompanies].map(company => ({
+                ...company,
+                emailDate: '',
+                responseDate: '',
+                status: 'Beklemede',
+                notes: ''
+            }));
+            
+            renderTable();
+            updateStats();
+        }
+        
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            companies.forEach((company, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${company.company}</strong></td>
+                    <td>${getCountryFlag(company.country)} ${company.country}</td>
+                    <td><span style="font-size: 0.8em; background: #e3f2fd; padding: 2px 8px; border-radius: 10px;">${company.sector}</span></td>
+                    <td><a href="mailto:${company.contact}" style="color: #3498db;">${company.contact}</a></td>
+                    <td><span class="stipend">${company.stipend}</span></td>
+                    <td class="editable" onclick="openDatePicker(${index}, 'emailDate')">${company.emailDate || 'Tarih seç'}</td>
+                    <td class="editable" onclick="openDatePicker(${index}, 'responseDate')">${company.responseDate || 'Tarih seç'}</td>
+                    <td><span class="status status-${getStatusClass(company.status)}">${company.status}</span></td>
+                    <td class="editable" onclick="openNotesEditor(${index})" title="${company.notes}">${company.notes.substring(0, 30)}${company.notes.length > 30 ? '...' : ''}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-small" onclick="editRow(${index})">✏️</button>
+                        <button class="btn btn-small" style="background: #e74c3c;" onclick="deleteRow(${index})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function getCountryFlag(country) {
+            const flags = {
+                'İsveç': '🇸🇪',
+                'Norveç': '🇳🇴',
+                'Danimarka': '🇩🇰'
+            };
+            return flags[country] || '';
+        }
+        
+        function getStatusClass(status) {
+            const statusMap = {
+                'Beklemede': 'beklemede',
+                'E-posta Gönderildi': 'gonderildi',
+                'Cevap Alındı': 'cevaplandi',
+                'Reddedildi': 'red',
+                'Kabul Edildi': 'gonderildi'
+            };
+            return statusMap[status] || 'beklemede';
+        }
+        
+        function editRow(index) {
+            currentEditingRow = index;
+            const company = companies[index];
+            
+            document.getElementById('edit-email-date').value = company.emailDate;
+            document.getElementById('edit-response-date').value = company.responseDate;
+            document.getElementById('edit-status').value = company.status;
+            document.getElementById('edit-notes').value = company.notes;
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditingRow = null;
+        }
+        
+        function saveChanges() {
+            if (currentEditingRow !== null) {
+                companies[currentEditingRow].emailDate = document.getElementById('edit-email-date').value;
+                companies[currentEditingRow].responseDate = document.getElementById('edit-response-date').value;
+                companies[currentEditingRow].status = document.getElementById('edit-status').value;
+                companies[currentEditingRow].notes = document.getElementById('edit-notes').value;
+                
+                renderTable();
+                updateStats();
+                closeModal();
+            }
+        }
+        
+        function openDatePicker(index, field) {
+            const date = prompt(`${field === 'emailDate' ? 'E-posta' : 'Cevap'} tarihini girin (YYYY-MM-DD):`);
+            if (date) {
+                companies[index][field] = date;
+                renderTable();
+                updateStats();
+            }
+        }
+        
+        function openNotesEditor(index) {
+            const notes = prompt('Notları düzenleyin:', companies[index].notes);
+            if (notes !== null) {
+                companies[index].notes = notes;
+                renderTable();
+            }
+        }
+        
+        function deleteRow(index) {
+            if (confirm('Bu başvuruyu silmek istediğinizden emin misiniz?')) {
+                companies.splice(index, 1);
+                renderTable();
+                updateStats();
+            }
+        }
+        
+        function updateStats() {
+            const total = companies.length;
+            const sent = companies.filter(c => c.emailDate !== '').length;
+            const pending = companies.filter(c => c.emailDate !== '' && c.responseDate === '').length;
+            const success = companies.filter(c => c.status === 'Kabul Edildi').length;
+            const successRate = sent > 0 ? Math.round((success / sent) * 100) : 0;
+            
+            document.getElementById('total-companies').textContent = total;
+            document.getElementById('sent-applications').textContent = sent;
+            document.getElementById('pending-responses').textContent = pending;
+            document.getElementById('success-rate').textContent = successRate + '%';
+        }
+        
+        function filterTable() {
+            const countryFilter = document.getElementById('country-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredCompanies = companies;
+            
+            if (countryFilter !== 'all') {
+                filteredCompanies = filteredCompanies.filter(c => c.country === countryFilter);
+            }
+            
+            if (statusFilter !== 'all') {
+                filteredCompanies = filteredCompanies.filter(c => c.status === statusFilter);
+            }
+            
+            if (searchTerm) {
+                filteredCompanies = filteredCompanies.filter(c => 
+                    c.company.toLowerCase().includes(searchTerm) || 
+                    c.sector.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderFilteredTable(filteredCompanies);
+        }
+        
+        function searchTable() {
+            filterTable();
+        }
+        
+        function renderFilteredTable(filteredCompanies) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            filteredCompanies.forEach((company, originalIndex) => {
+                const index = companies.indexOf(company);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${company.company}</strong></td>
+                    <td>${getCountryFlag(company.country)} ${company.country}</td>
+                    <td><span style="font-size: 0.8em; background: #e3f2fd; padding: 2px 8px; border-radius: 10px;">${company.sector}</span></td>
+                    <td><a href="mailto:${company.contact}" style="color: #3498db;">${company.contact}</a></td>
+                    <td><span class="stipend">${company.stipend}</span></td>
+                    <td class="editable" onclick="openDatePicker(${index}, 'emailDate')">${company.emailDate || 'Tarih seç'}</td>
+                    <td class="editable" onclick="openDatePicker(${index}, 'responseDate')">${company.responseDate || 'Tarih seç'}</td>
+                    <td><span class="status status-${getStatusClass(company.status)}">${company.status}</span></td>
+                    <td class="editable" onclick="openNotesEditor(${index})" title="${company.notes}">${company.notes.substring(0, 30)}${company.notes.length > 30 ? '...' : ''}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-small" onclick="editRow(${index})">✏️</button>
+                        <button class="btn btn-small" style="background: #e74c3c;" onclick="deleteRow(${index})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function exportToCSV() {
+            let csv = 'Şirket Adı,Ülke,Sektör,İletişim,Maaş,E-posta Tarihi,Cevap Tarihi,Durum,Notlar\n';
+            
+            companies.forEach(company => {
+                csv += `"${company.company}","${company.country}","${company.sector}","${company.contact}","${company.stipend}","${company.emailDate}","${company.responseDate}","${company.status}","${company.notes}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'erasmus_basvuru_takip.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function addNewApplication() {
+            const company = prompt('Şirket adını girin:');
+            if (!company) return;
+            
+            const country = prompt('Ülkeyi girin (İsveç/Norveç/Danimarka):');
+            if (!country) return;
+            
+            const sector = prompt('Sektörü girin:');
+            if (!sector) return;
+            
+            const contact = prompt('E-posta adresini girin:');
+            if (!contact) return;
+            
+            const stipend = prompt('Maaş bilgisini girin:');
+            if (!stipend) return;
+            
+            companies.push({
+                company,
+                country,
+                sector,
+                contact,
+                stipend,
+                emailDate: '',
+                responseDate: '',
+                status: 'Beklemede',
+                notes: ''
+            });
+            
+            renderTable();
+            updateStats();
+        }
+        
+        // Modal dışına tıklandığında kapat
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Sayfa yüklendiğinde verileri initialize et
+        window.onload = function() {
+            initializeData();
+        }
+    </script>
+</body>
+</html> 
