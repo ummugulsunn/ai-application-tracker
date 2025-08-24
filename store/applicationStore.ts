@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Application, ApplicationStats, FilterOptions, SortOptions } from '@/types/application'
+import { Application, ApplicationStats, FilterOptions, SortOptions } from '../types/application'
 
 interface ApplicationStore {
   applications: Application[]
   filters: FilterOptions
   sortOptions: SortOptions
   searchQuery: string
+  isInitialized: boolean
   
   // Actions
   addApplication: (application: Omit<Application, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -14,6 +15,7 @@ interface ApplicationStore {
   deleteApplication: (id: string) => void
   importApplications: (applications: Application[]) => void
   exportApplications: () => string
+  initializeSampleData: () => void
   
   // Filters and search
   setFilters: (filters: Partial<FilterOptions>) => void
@@ -40,7 +42,71 @@ const defaultSortOptions: SortOptions = {
   direction: 'desc'
 }
 
-// Generate unique ID
+// Pre-defined sample data with stable IDs
+const sampleData: Application[] = [
+  {
+    id: 'sample-spotify-001',
+    company: 'Spotify',
+    position: 'Software Engineer Intern',
+    location: 'Stockholm, Sweden',
+    type: 'Internship',
+    salary: '15,000 SEK/month',
+    status: 'Applied',
+    appliedDate: '2024-01-15',
+    responseDate: null,
+    interviewDate: null,
+    notes: 'Applied through LinkedIn. Position focuses on backend development.',
+    contactPerson: 'Sarah Johnson',
+    contactEmail: 'careers@spotify.com',
+    website: 'https://spotify.com/careers',
+    tags: ['Backend', 'Music', 'Sweden'],
+    priority: 'High',
+    createdAt: '2024-01-15T00:00:00.000Z',
+    updatedAt: '2024-01-15T00:00:00.000Z'
+  },
+  {
+    id: 'sample-klarna-002',
+    company: 'Klarna',
+    position: 'Data Science Intern',
+    location: 'Stockholm, Sweden',
+    type: 'Internship',
+    salary: '14,000 SEK/month',
+    status: 'Interviewing',
+    appliedDate: '2024-01-10',
+    responseDate: '2024-01-20',
+    interviewDate: '2024-02-05',
+    notes: 'First round interview scheduled. Technical assessment completed.',
+    contactPerson: 'Marcus Andersson',
+    contactEmail: 'internships@klarna.com',
+    website: 'https://klarna.com/careers',
+    tags: ['Data Science', 'Fintech', 'Sweden'],
+    priority: 'High',
+    createdAt: '2024-01-10T00:00:00.000Z',
+    updatedAt: '2024-01-20T00:00:00.000Z'
+  },
+  {
+    id: 'sample-ericsson-003',
+    company: 'Ericsson',
+    position: 'Network Engineering Intern',
+    location: 'Gothenburg, Sweden',
+    type: 'Internship',
+    salary: '12,000 SEK/month',
+    status: 'Pending',
+    appliedDate: '2024-01-20',
+    responseDate: null,
+    interviewDate: null,
+    notes: 'Application submitted. Waiting for response.',
+    contactPerson: 'Elena Petrova',
+    contactEmail: 'career@ericsson.com',
+    website: 'https://ericsson.com/careers',
+    tags: ['Networking', 'Telecom', 'Sweden'],
+    priority: 'Medium',
+    createdAt: '2024-01-20T00:00:00.000Z',
+    updatedAt: '2024-01-20T00:00:00.000Z'
+  }
+]
+
+// Generate unique ID for new applications
 const generateUniqueId = (): string => {
   return `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
@@ -52,6 +118,14 @@ export const useApplicationStore = create<ApplicationStore>()(
       filters: defaultFilters,
       sortOptions: defaultSortOptions,
       searchQuery: '',
+      isInitialized: false,
+
+      initializeSampleData: () => {
+        const { applications, isInitialized } = get()
+        if (!isInitialized && applications.length === 0) {
+          set({ applications: sampleData, isInitialized: true })
+        }
+      },
 
       addApplication: (applicationData) => {
         const now = new Date().toISOString()
@@ -280,7 +354,10 @@ export const useApplicationStore = create<ApplicationStore>()(
     }),
     {
       name: 'application-store',
-      partialize: (state) => ({ applications: state.applications })
+      partialize: (state) => ({ 
+        applications: state.applications,
+        isInitialized: state.isInitialized
+      })
     }
   )
 )
