@@ -14,6 +14,7 @@ import { useApplicationStore } from '@/store/applicationStore'
 import { Application, SortOptions } from '@/types/application'
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'react-hot-toast'
+import EditApplicationModal from './EditApplicationModal'
 
 export default function ApplicationTable() {
   const { 
@@ -41,6 +42,11 @@ export default function ApplicationTable() {
       deleteApplication(id)
       toast.success('Application deleted successfully')
     }
+  }
+
+  const handleEdit = (application: Application) => {
+    setSelectedApplication(application)
+    setIsEditModalOpen(true)
   }
 
   const getStatusColor = (status: Application['status']) => {
@@ -214,10 +220,7 @@ export default function ApplicationTable() {
                         </button>
                         
                         <button
-                          onClick={() => {
-                            setSelectedApplication(application)
-                            setIsEditModalOpen(true)
-                          }}
+                          onClick={() => handleEdit(application)}
                           className="text-warning-600 hover:text-warning-900 transition-colors"
                           title="Edit application"
                         >
@@ -322,6 +325,16 @@ export default function ApplicationTable() {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditApplicationModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedApplication(null)
+        }}
+        application={selectedApplication}
+      />
     </div>
   )
 }
