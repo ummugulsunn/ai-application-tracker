@@ -40,6 +40,11 @@ const defaultSortOptions: SortOptions = {
   direction: 'desc'
 }
 
+// Generate unique ID
+const generateUniqueId = (): string => {
+  return `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
 export const useApplicationStore = create<ApplicationStore>()(
   persist(
     (set, get) => ({
@@ -52,7 +57,7 @@ export const useApplicationStore = create<ApplicationStore>()(
         const now = new Date().toISOString()
         const newApplication: Application = {
           ...applicationData,
-          id: Date.now().toString(),
+          id: generateUniqueId(),
           createdAt: now,
           updatedAt: now
         }
@@ -82,7 +87,7 @@ export const useApplicationStore = create<ApplicationStore>()(
         const now = new Date().toISOString()
         const processedApplications = newApplications.map(app => ({
           ...app,
-          id: app.id || Date.now().toString(),
+          id: app.id || generateUniqueId(),
           createdAt: app.createdAt || now,
           updatedAt: now
         }))
@@ -194,6 +199,11 @@ export const useApplicationStore = create<ApplicationStore>()(
         filtered.sort((a, b) => {
           const aValue = a[sortOptions.field]
           const bValue = b[sortOptions.field]
+          
+          // Handle null/undefined values
+          if (aValue == null && bValue == null) return 0
+          if (aValue == null) return 1
+          if (bValue == null) return -1
           
           if (aValue < bValue) return sortOptions.direction === 'asc' ? -1 : 1
           if (aValue > bValue) return sortOptions.direction === 'asc' ? 1 : -1
