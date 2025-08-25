@@ -103,144 +103,169 @@ export default function ApplicationTable() {
 
       {/* Applications Table */}
       <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('company')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Company</span>
-                    <ChevronUpDownIcon className="w-4 h-4" />
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('position')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Position</span>
-                    <ChevronUpDownIcon className="w-4 h-4" />
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('appliedDate')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Applied</span>
-                    <ChevronUpDownIcon className="w-4 h-4" />
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              <AnimatePresence>
-                {applications.map((application, index) => (
-                  <motion.tr
-                    key={application.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2, delay: index * 0.05 }}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {application.company}
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between p-6 border-b border-gray-200">
+          <div className="relative flex-1 max-w-md">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search applications..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field pl-10 w-full"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="btn-secondary flex items-center space-x-2">
+              <FunnelIcon className="w-4 h-4" />
+              <span>Filters</span>
+            </button>
+            <button className="btn-secondary flex items-center space-x-2">
+              <ChevronUpDownIcon className="w-4 h-4" />
+              <span>Sort</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Table Container with Better Horizontal Scroll */}
+        <div className="overflow-x-auto border border-gray-200 rounded-lg">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[200px]">
+                    <div className="flex items-center space-x-1">
+                      <span>Company</span>
+                      <ChevronUpDownIcon className="w-4 h-4" />
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[180px]">
+                    <div className="flex items-center space-x-1">
+                      <span>Position</span>
+                      <ChevronUpDownIcon className="w-4 h-4" />
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[160px]">
+                    Location
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[160px]">
+                    <div className="flex items-center space-x-1">
+                      <span>Applied</span>
+                      <ChevronUpDownIcon className="w-4 h-4" />
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
+                    Priority
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[140px]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <AnimatePresence>
+                  {applications.map((application, index) => (
+                    <motion.tr
+                      key={application.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{application.company}</div>
+                          <div className="text-sm text-gray-500">{application.type}</div>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {application.type}
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{application.position}</div>
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{application.location}</div>
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(application.status)}`}>
+                          {application.status}
+                        </span>
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm text-gray-900">
+                            {application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {application.appliedDate ? formatDistanceToNow(new Date(application.appliedDate), { addSuffix: true }) : 'N/A'}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {application.position}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {application.salary}
-                      </div>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {application.location}
-                      </div>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(application.status)}`}>
-                        {application.status}
-                      </span>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'N/A'}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {application.appliedDate ? formatDistanceToNow(new Date(application.appliedDate), { addSuffix: true }) : 'N/A'}
-                      </div>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(application.priority)}`}>
-                        {application.priority}
-                      </span>
-                    </td>
-                    
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            setSelectedApplication(application)
-                            setIsViewModalOpen(true)
-                          }}
-                          className="text-primary-600 hover:text-primary-900 transition-colors"
-                          title="View details"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                        </button>
-                        
-                        <button
-                          onClick={() => handleEdit(application)}
-                          className="text-warning-600 hover:text-warning-900 transition-colors"
-                          title="Edit application"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        
-                        <button
-                          onClick={() => handleDelete(application.id)}
-                          className="text-danger-600 hover:text-danger-900 transition-colors"
-                          title="Delete application"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(application.priority)}`}>
+                          {application.priority}
+                        </span>
+                      </td>
+                      
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => {
+                              setSelectedApplication(application)
+                              setIsViewModalOpen(true)
+                            }}
+                            className="text-primary-600 hover:text-primary-900 transition-colors p-1 rounded hover:bg-primary-50"
+                            title="View details"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => handleEdit(application)}
+                            className="text-warning-600 hover:text-warning-900 transition-colors p-1 rounded hover:bg-warning-50"
+                            title="Edit application"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDelete(application.id)}
+                            className="text-danger-600 hover:text-danger-900 transition-colors p-1 rounded hover:bg-danger-50"
+                            title="Delete application"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Scroll Indicator */}
+          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>Total: {applications.length} applications</span>
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+                <span>Scroll horizontally to see all columns</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Empty State */}
