@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Application, ApplicationStats, FilterOptions, SortOptions } from '@/types/application'
+import { Application, ApplicationStats, FilterOptions, SortOptions } from '../types/application'
 
 interface ApplicationStore {
   applications: Application[]
   filters: FilterOptions
   sortOptions: SortOptions
   searchQuery: string
+  isInitialized: boolean
   
   // Actions
   addApplication: (application: Omit<Application, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -14,6 +15,10 @@ interface ApplicationStore {
   deleteApplication: (id: string) => void
   importApplications: (applications: Application[]) => void
   exportApplications: () => string
+  initializeSampleData: () => void
+  cleanupInvalidData: () => void
+  forceUpdateStats: () => void
+  forceReinitialize: () => void
   
   // Filters and search
   setFilters: (filters: Partial<FilterOptions>) => void
@@ -40,6 +45,143 @@ const defaultSortOptions: SortOptions = {
   direction: 'desc'
 }
 
+// Pre-defined sample data with stable IDs
+const sampleData: Application[] = [
+  {
+    id: 'sample-1',
+    company: 'Google',
+    position: 'Software Engineer',
+    location: 'Mountain View, CA',
+    status: 'Applied',
+    appliedDate: '2024-01-15',
+    responseDate: null,
+    interviewDate: null,
+    priority: 'High',
+    type: 'Full-time',
+    salary: '$120,000 - $150,000',
+    notes: 'Applied through company website, strong referral',
+    contactPerson: 'John Smith',
+    contactEmail: 'careers@google.com',
+    website: 'https://careers.google.com',
+    tags: ['Backend', 'Python', 'Cloud'],
+    createdAt: new Date('2024-01-15').toISOString(),
+    updatedAt: new Date('2024-01-15').toISOString()
+  },
+  {
+    id: 'sample-2',
+    company: 'Microsoft',
+    position: 'Frontend Developer',
+    location: 'Seattle, WA',
+    status: 'Interviewing',
+    appliedDate: '2024-01-10',
+    responseDate: '2024-01-20',
+    interviewDate: '2024-01-25',
+    priority: 'High',
+    type: 'Full-time',
+    salary: '$110,000 - $140,000',
+    notes: 'React and TypeScript development for Office products',
+    contactPerson: 'Sarah Johnson',
+    contactEmail: 'careers@microsoft.com',
+    website: 'https://careers.microsoft.com',
+    tags: ['Frontend', 'React', 'TypeScript'],
+    createdAt: new Date('2024-01-10').toISOString(),
+    updatedAt: new Date('2024-01-20').toISOString()
+  },
+  {
+    id: 'sample-3',
+    company: 'Apple',
+    position: 'iOS Developer',
+    location: 'Cupertino, CA',
+    status: 'Rejected',
+    appliedDate: '2024-01-05',
+    responseDate: '2024-01-25',
+    interviewDate: '2024-01-20',
+    priority: 'Medium',
+    type: 'Full-time',
+    salary: '$130,000 - $160,000',
+    notes: 'Rejected after technical interview',
+    contactPerson: 'Mike Chen',
+    contactEmail: 'careers@apple.com',
+    website: 'https://careers.apple.com',
+    tags: ['iOS', 'Swift', 'Mobile'],
+    createdAt: new Date('2024-01-05').toISOString(),
+    updatedAt: new Date('2024-01-25').toISOString()
+  },
+  {
+    id: 'sample-4',
+    company: 'Netflix',
+    position: 'DevOps Engineer',
+    location: 'Los Gatos, CA',
+    status: 'Accepted',
+    appliedDate: '2024-01-01',
+    responseDate: '2024-01-15',
+    interviewDate: '2024-01-10',
+    priority: 'High',
+    type: 'Full-time',
+    salary: '$140,000 - $170,000',
+    notes: 'Accepted the offer! Starting next month',
+    contactPerson: 'Lisa Rodriguez',
+    contactEmail: 'careers@netflix.com',
+    website: 'https://jobs.netflix.com',
+    tags: ['DevOps', 'AWS', 'Docker'],
+    createdAt: new Date('2024-01-01').toISOString(),
+    updatedAt: new Date('2024-01-15').toISOString()
+  },
+  {
+    id: 'sample-5',
+    company: 'Amazon',
+    position: 'Data Scientist',
+    location: 'Seattle, WA',
+    status: 'Offered',
+    appliedDate: '2024-01-20',
+    responseDate: '2024-02-01',
+    interviewDate: '2024-01-28',
+    priority: 'Medium',
+    type: 'Full-time',
+    salary: '$125,000 - $155,000',
+    notes: 'Received offer, considering other options',
+    contactPerson: 'David Kim',
+    contactEmail: 'careers@amazon.com',
+    website: 'https://amazon.jobs',
+    tags: ['ML', 'Python', 'Data'],
+    createdAt: new Date('2024-01-20').toISOString(),
+    updatedAt: new Date('2024-02-01').toISOString()
+  }
+]
+
+// Generate unique ID for new applications
+let idCounter = 0
+const generateUniqueId = (): string => {
+  idCounter++
+  const random = Math.random().toString(36).substr(2, 9)
+  return `app_${idCounter}_${random}`
+}
+
+// Helper function to validate and clean dates
+const validateAndCleanDate = (dateString: string | null | undefined): string | null => {
+  if (!dateString) return null
+  
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return null
+    return date.toISOString().split('T')[0] // Return YYYY-MM-DD format
+  } catch {
+    return null
+  }
+}
+
+// Helper function to clean application data
+const cleanApplicationData = (app: any): Application => {
+  return {
+    ...app,
+    appliedDate: validateAndCleanDate(app.appliedDate) || new Date().toISOString().split('T')[0],
+    responseDate: validateAndCleanDate(app.responseDate),
+    interviewDate: validateAndCleanDate(app.interviewDate),
+    createdAt: validateAndCleanDate(app.createdAt) || new Date().toISOString(),
+    updatedAt: validateAndCleanDate(app.updatedAt) || new Date().toISOString()
+  }
+}
+
 export const useApplicationStore = create<ApplicationStore>()(
   persist(
     (set, get) => ({
@@ -47,18 +189,50 @@ export const useApplicationStore = create<ApplicationStore>()(
       filters: defaultFilters,
       sortOptions: defaultSortOptions,
       searchQuery: '',
+      isInitialized: false,
+
+      initializeSampleData: () => {
+        const { applications, isInitialized } = get()
+        if (!isInitialized && applications.length === 0) {
+          // Clean sample data before setting
+          const cleanedSampleData = sampleData.map(cleanApplicationData)
+          set({ applications: cleanedSampleData, isInitialized: true })
+        } else if (isInitialized && applications.length > 0) {
+          // Clean existing applications to fix any invalid dates
+          const cleanedApplications = applications.map(cleanApplicationData)
+          set({ applications: cleanedApplications, isInitialized: true })
+        } else if (!isInitialized && applications.length > 0) {
+          // If we have applications but not initialized, mark as initialized
+          set({ isInitialized: true })
+        }
+      },
 
       addApplication: (applicationData) => {
         const now = new Date().toISOString()
+        let newId: string
+        let attempts = 0
+        
+        // Ensure unique ID (max 10 attempts to prevent infinite loop)
+        do {
+          newId = generateUniqueId()
+          attempts++
+        } while (
+          attempts < 10 && 
+          get().applications.some(app => app.id === newId)
+        )
+        
         const newApplication: Application = {
           ...applicationData,
-          id: Date.now().toString(),
+          id: newId,
           createdAt: now,
           updatedAt: now
         }
         
+        // Clean the application data before adding
+        const cleanedApplication = cleanApplicationData(newApplication)
+        
         set((state) => ({
-          applications: [...state.applications, newApplication]
+          applications: [...state.applications, cleanedApplication]
         }))
       },
 
@@ -66,7 +240,7 @@ export const useApplicationStore = create<ApplicationStore>()(
         set((state) => ({
           applications: state.applications.map(app =>
             app.id === id
-              ? { ...app, ...updates, updatedAt: new Date().toISOString() }
+              ? cleanApplicationData({ ...app, ...updates, updatedAt: new Date().toISOString() })
               : app
           )
         }))
@@ -80,12 +254,33 @@ export const useApplicationStore = create<ApplicationStore>()(
 
       importApplications: (newApplications) => {
         const now = new Date().toISOString()
-        const processedApplications = newApplications.map(app => ({
-          ...app,
-          id: app.id || Date.now().toString(),
-          createdAt: app.createdAt || now,
-          updatedAt: now
-        }))
+        const processedApplications = newApplications.map(app => {
+          let newId = String(app.id || '')
+          let attempts = 0
+          
+          // Ensure string ID and uniqueness
+          if (!newId) newId = generateUniqueId()
+          if (!newId.startsWith('app_') && /^\d+$/.test(newId)) {
+            newId = `app_${newId}`
+          }
+          while (
+            attempts < 10 && 
+            get().applications.some(existing => existing.id === newId)
+          ) {
+            newId = generateUniqueId()
+            attempts++
+          }
+          
+          // Clean the application data before adding
+          const cleanedApp = cleanApplicationData({
+            ...app,
+            id: newId,
+            createdAt: app.createdAt || now,
+            updatedAt: now
+          })
+          
+          return cleanedApp
+        })
         
         set((state) => ({
           applications: [...state.applications, ...processedApplications]
@@ -123,6 +318,28 @@ export const useApplicationStore = create<ApplicationStore>()(
           .join('\n')
         
         return csvContent
+      },
+
+      cleanupInvalidData: () => {
+        set((state) => ({
+          applications: state.applications.map(cleanApplicationData)
+        }))
+      },
+
+      forceUpdateStats: () => {
+        set({ isInitialized: false }) // Force re-calculation by resetting initialized state
+      },
+
+      forceReinitialize: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('application-store')
+        }
+        set({ applications: [], isInitialized: false })
+        // Reinitialize after a short delay
+        setTimeout(() => {
+          const { initializeSampleData } = get()
+          initializeSampleData()
+        }, 100)
       },
 
       setFilters: (newFilters) => {
@@ -180,7 +397,9 @@ export const useApplicationStore = create<ApplicationStore>()(
         }
         if (filters.dateRange.start || filters.dateRange.end) {
           filtered = filtered.filter(app => {
+            if (!app.appliedDate) return true // Skip apps without applied date
             const appliedDate = new Date(app.appliedDate)
+            if (isNaN(appliedDate.getTime())) return true // Skip invalid dates
             const start = filters.dateRange.start ? new Date(filters.dateRange.start) : null
             const end = filters.dateRange.end ? new Date(filters.dateRange.end) : null
             
@@ -194,6 +413,11 @@ export const useApplicationStore = create<ApplicationStore>()(
         filtered.sort((a, b) => {
           const aValue = a[sortOptions.field]
           const bValue = b[sortOptions.field]
+          
+          // Handle null/undefined values
+          if (aValue == null && bValue == null) return 0
+          if (aValue == null) return 1
+          if (bValue == null) return -1
           
           if (aValue < bValue) return sortOptions.direction === 'asc' ? -1 : 1
           if (aValue > bValue) return sortOptions.direction === 'asc' ? 1 : -1
@@ -224,10 +448,17 @@ export const useApplicationStore = create<ApplicationStore>()(
           topLocations: [] as string[]
         } as ApplicationStats)
 
-        // Calculate success rate
-        if (stats.applied > 0) {
-          stats.successRate = Math.round((stats.accepted / stats.applied) * 100)
+        // Calculate success rate - consider all applications that have received a response
+        const applicationsWithResponse = stats.applied + stats.interviewing + stats.offered + stats.rejected + stats.accepted
+        if (applicationsWithResponse > 0) {
+          stats.successRate = Math.round((stats.accepted / applicationsWithResponse) * 100)
+        } else if (stats.total > 0) {
+          // If no responses yet, show 0% success rate
+          stats.successRate = 0
         }
+
+        // Alternative success rate calculation: accepted vs total applications
+        // const overallSuccessRate = stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0
 
         // Calculate average response time
         const responseTimes = applications
@@ -235,8 +466,15 @@ export const useApplicationStore = create<ApplicationStore>()(
           .map(app => {
             const applied = new Date(app.appliedDate!)
             const response = new Date(app.responseDate!)
+            
+            // Validate dates before calculation
+            if (isNaN(applied.getTime()) || isNaN(response.getTime())) {
+              return null
+            }
+            
             return (response.getTime() - applied.getTime()) / (1000 * 60 * 60 * 24)
           })
+          .filter(time => time !== null) as number[]
         
         if (responseTimes.length > 0) {
           stats.averageResponseTime = Math.round(
@@ -270,7 +508,33 @@ export const useApplicationStore = create<ApplicationStore>()(
     }),
     {
       name: 'application-store',
-      partialize: (state) => ({ applications: state.applications })
+      version: 2,
+      migrate: (persisted: any, version: number) => {
+        // Sanitize IDs and remove duplicates
+        const state = persisted || {}
+        const apps: Application[] = Array.isArray(state.applications) ? state.applications : []
+        const seen = new Set<string>()
+        const fixed: Application[] = []
+        for (const app of apps) {
+          let id = String(app.id ?? '')
+          if (!id) id = generateUniqueId()
+          if (!id.startsWith('app_') && /^\d+$/.test(id)) {
+            id = `app_${id}`
+          }
+          let attempts = 0
+          while (attempts < 10 && seen.has(id)) {
+            id = generateUniqueId()
+            attempts++
+          }
+          seen.add(id)
+          fixed.push({ ...app, id })
+        }
+        return { ...state, applications: fixed }
+      },
+      partialize: (state) => ({ 
+        applications: state.applications,
+        isInitialized: state.isInitialized
+      })
     }
   )
 )
