@@ -11,9 +11,10 @@ import {
 } from '@heroicons/react/24/outline'
 import { useApplicationStore } from '@/store/applicationStore'
 import { formatDistanceToNow } from 'date-fns'
+import { toast } from 'react-hot-toast'
 
 export default function Dashboard() {
-  const { getStats } = useApplicationStore()
+  const { getStats, fixDuplicateIds } = useApplicationStore()
   const stats = getStats()
 
   const statCards = [
@@ -79,6 +80,20 @@ export default function Dashboard() {
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Utility Actions */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => {
+            fixDuplicateIds()
+            toast.success('Duplicate IDs have been fixed')
+          }}
+          className="btn-secondary text-sm"
+          title="Fix any duplicate application IDs"
+        >
+          Fix Duplicate IDs
+        </button>
       </div>
 
       {/* Status Breakdown and Top Companies */}

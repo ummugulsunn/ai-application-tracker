@@ -107,8 +107,11 @@ const sampleData: Application[] = [
 ]
 
 // Generate unique ID for new applications
+let idCounter = 0
 const generateUniqueId = (): string => {
-  return `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  idCounter++
+  const random = Math.random().toString(36).substr(2, 9)
+  return `app_${idCounter}_${random}`
 }
 
 export const useApplicationStore = create<ApplicationStore>()(
@@ -129,9 +132,21 @@ export const useApplicationStore = create<ApplicationStore>()(
 
       addApplication: (applicationData) => {
         const now = new Date().toISOString()
+        let newId: string
+        let attempts = 0
+        
+        // Ensure unique ID (max 10 attempts to prevent infinite loop)
+        do {
+          newId = generateUniqueId()
+          attempts++
+        } while (
+          attempts < 10 && 
+          get().applications.some(app => app.id === newId)
+        )
+        
         const newApplication: Application = {
           ...applicationData,
-          id: generateUniqueId(),
+          id: newId,
           createdAt: now,
           updatedAt: now
         }
@@ -159,12 +174,30 @@ export const useApplicationStore = create<ApplicationStore>()(
 
       importApplications: (newApplications) => {
         const now = new Date().toISOString()
-        const processedApplications = newApplications.map(app => ({
-          ...app,
-          id: app.id || generateUniqueId(),
-          createdAt: app.createdAt || now,
-          updatedAt: now
-        }))
+        const processedApplications = newApplications.map(app => {
+          let newId = String(app.id || '')
+          let attempts = 0
+          
+          // Ensure string ID and uniqueness
+          if (!newId) newId = generateUniqueId()
+          if (!newId.startsWith('app_') && /^\d+$/.test(newId)) {
+            newId = `app_${newId}`
+          }
+          while (
+            attempts < 10 && 
+            get().applications.some(existing => existing.id === newId)
+          ) {
+            newId = generateUniqueId()
+            attempts++
+          }
+          
+          return {
+            ...app,
+            id: newId,
+            createdAt: app.createdAt || now,
+            updatedAt: now
+          }
+        })
         
         set((state) => ({
           applications: [...state.applications, ...processedApplications]
@@ -354,6 +387,29 @@ export const useApplicationStore = create<ApplicationStore>()(
     }),
     {
       name: 'application-store',
+      version: 2,
+      migrate: (persisted: any, version: number) => {
+        // Sanitize IDs and remove duplicates
+        const state = persisted || {}
+        const apps: Application[] = Array.isArray(state.applications) ? state.applications : []
+        const seen = new Set<string>()
+        const fixed: Application[] = []
+        for (const app of apps) {
+          let id = String(app.id ?? '')
+          if (!id) id = generateUniqueId()
+          if (!id.startsWith('app_') && /^\d+$/.test(id)) {
+            id = `app_${id}`
+          }
+          let attempts = 0
+          while (attempts < 10 && seen.has(id)) {
+            id = generateUniqueId()
+            attempts++
+          }
+          seen.add(id)
+          fixed.push({ ...app, id })
+        }
+        return { ...state, applications: fixed }
+      },
       partialize: (state) => ({ 
         applications: state.applications,
         isInitialized: state.isInitialized
