@@ -15,7 +15,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'react-hot-toast'
 
 export default function Dashboard() {
-  const { getStats, isInitialized, applications } = useApplicationStore()
+  const { getStats, isInitialized, applications, forceReinitialize } = useApplicationStore()
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -52,6 +52,11 @@ export default function Dashboard() {
       refreshStats()
     }
   }, [applications, isInitialized, getStats])
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Dashboard Debug:', { isInitialized, applicationsLength: applications.length, isLoading })
+  }, [isInitialized, applications.length, isLoading])
 
   // Don't render until store is initialized to prevent hydration mismatch
   if (isLoading || !isInitialized) {
@@ -152,6 +157,17 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>Refresh Data</span>
+            </button>
+            
+            <button
+              onClick={forceReinitialize}
+              className="btn-secondary flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border-red-200"
+              title="Force reinitialize data"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Force Reinit</span>
             </button>
             
             <div className="text-center bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg p-4 border border-primary-200">

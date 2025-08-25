@@ -18,6 +18,7 @@ interface ApplicationStore {
   initializeSampleData: () => void
   cleanupInvalidData: () => void
   forceUpdateStats: () => void
+  forceReinitialize: () => void
   
   // Filters and search
   setFilters: (filters: Partial<FilterOptions>) => void
@@ -199,7 +200,10 @@ export const useApplicationStore = create<ApplicationStore>()(
         } else if (isInitialized && applications.length > 0) {
           // Clean existing applications to fix any invalid dates
           const cleanedApplications = applications.map(cleanApplicationData)
-          set({ applications: cleanedApplications })
+          set({ applications: cleanedApplications, isInitialized: true })
+        } else if (!isInitialized && applications.length > 0) {
+          // If we have applications but not initialized, mark as initialized
+          set({ isInitialized: true })
         }
       },
 
@@ -324,6 +328,18 @@ export const useApplicationStore = create<ApplicationStore>()(
 
       forceUpdateStats: () => {
         set({ isInitialized: false }) // Force re-calculation by resetting initialized state
+      },
+
+      forceReinitialize: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('application-store')
+        }
+        set({ applications: [], isInitialized: false })
+        // Reinitialize after a short delay
+        setTimeout(() => {
+          const { initializeSampleData } = get()
+          initializeSampleData()
+        }, 100)
       },
 
       setFilters: (newFilters) => {
