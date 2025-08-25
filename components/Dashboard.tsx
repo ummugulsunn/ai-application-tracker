@@ -15,7 +15,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'react-hot-toast'
 
 export default function Dashboard() {
-  const { getStats, isInitialized } = useApplicationStore()
+  const { getStats, isInitialized, applications } = useApplicationStore()
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -30,6 +30,7 @@ export default function Dashboard() {
     topLocations: [] as string[]
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
 
   useEffect(() => {
     if (isInitialized) {
@@ -37,6 +38,14 @@ export default function Dashboard() {
       setIsLoading(false)
     }
   }, [isInitialized, getStats])
+
+  // Update stats when applications change
+  useEffect(() => {
+    if (isInitialized && applications.length > 0) {
+      setStats(getStats())
+      setLastUpdated(new Date())
+    }
+  }, [applications, isInitialized, getStats])
 
   // Don't render until store is initialized to prevent hydration mismatch
   if (isLoading || !isInitialized) {
@@ -65,61 +74,91 @@ export default function Dashboard() {
     {
       title: 'Total Applications',
       value: stats.total,
+      subtitle: 'All time',
       icon: BriefcaseIcon,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
+      trend: stats.total > 0 ? 'active' : 'neutral'
     },
     {
-      title: 'Pending Response',
-      value: stats.pending + stats.applied,
+      title: 'Active Applications',
+      value: stats.pending + stats.applied + stats.interviewing,
+      subtitle: 'In progress',
       icon: ClockIcon,
       color: 'text-warning-600',
-      bgColor: 'bg-warning-50'
+      bgColor: 'bg-warning-50',
+      trend: (stats.pending + stats.applied + stats.interviewing) > 0 ? 'active' : 'neutral'
     },
     {
       title: 'Success Rate',
       value: `${stats.successRate}%`,
+      subtitle: 'Applications accepted',
       icon: CheckCircleIcon,
       color: 'text-success-600',
-      bgColor: 'bg-success-50'
+      bgColor: 'bg-success-50',
+      trend: stats.successRate > 0 ? 'positive' : 'neutral'
     },
     {
       title: 'Avg Response Time',
       value: stats.averageResponseTime > 0 ? `${stats.averageResponseTime} days` : 'N/A',
+      subtitle: 'Company response time',
       icon: ChartBarIcon,
       color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      bgColor: 'bg-purple-50',
+      trend: stats.averageResponseTime > 0 ? 'active' : 'neutral'
     }
   ]
 
   const statusBreakdown = [
-    { status: 'Pending', count: stats.pending, color: 'bg-warning-500' },
-    { status: 'Applied', count: stats.applied, color: 'bg-primary-500' },
-    { status: 'Interviewing', count: stats.interviewing, color: 'bg-blue-500' },
-    { status: 'Offered', count: stats.offered, color: 'bg-success-500' },
-    { status: 'Rejected', count: stats.rejected, color: 'bg-danger-500' },
-    { status: 'Accepted', count: stats.accepted, color: 'bg-success-600' }
+    { status: 'Pending', count: stats.pending, color: 'bg-warning-500', percentage: stats.total > 0 ? Math.round((stats.pending / stats.total) * 100) : 0 },
+    { status: 'Applied', count: stats.applied, color: 'bg-primary-500', percentage: stats.total > 0 ? Math.round((stats.applied / stats.total) * 100) : 0 },
+    { status: 'Interviewing', count: stats.interviewing, color: 'bg-blue-500', percentage: stats.total > 0 ? Math.round((stats.interviewing / stats.total) * 100) : 0 },
+    { status: 'Offered', count: stats.offered, color: 'bg-success-500', percentage: stats.total > 0 ? Math.round((stats.offered / stats.total) * 100) : 0 },
+    { status: 'Rejected', count: stats.rejected, color: 'bg-danger-500', percentage: stats.total > 0 ? Math.round((stats.rejected / stats.total) * 100) : 0 },
+    { status: 'Accepted', count: stats.accepted, color: 'bg-success-600', percentage: stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0 }
   ]
 
   return (
     <div className="space-y-6 mb-8">
+      {/* Dashboard Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Dashboard Overview</h2>
+          <p className="text-sm text-gray-500">
+            Last updated: {lastUpdated.toLocaleTimeString()}
+          </p>
+        </div>
+        <div className="text-right">
+          <div className="text-sm text-gray-500">Total Applications</div>
+          <div className="text-3xl font-bold text-primary-600">{stats.total}</div>
+        </div>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, index) => (
           <motion.div
             key={stat.title}
-            className="card"
+            className="card hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                <p className="text-xs text-gray-500">{stat.subtitle}</p>
               </div>
-              <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              <div className={`p-4 rounded-full ${stat.bgColor} relative`}>
+                <stat.icon className={`w-7 h-7 ${stat.color}`} />
+                {stat.trend === 'positive' && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586l5.293-5.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -135,15 +174,28 @@ export default function Dashboard() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Status</h3>
-          <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Status Breakdown</h3>
+          <div className="space-y-4">
             {statusBreakdown.map((item) => (
-              <div key={item.status} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                  <span className="text-sm font-medium text-gray-700">{item.status}</span>
+              <div key={item.status} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
+                    <span className="text-sm font-medium text-gray-700">{item.status}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-semibold text-gray-900">{item.count}</span>
+                    <span className="text-xs text-gray-500 ml-2">({item.percentage}%)</span>
+                  </div>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{item.count}</span>
+                {item.count > 0 && (
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full ${item.color.replace('bg-', 'bg-').replace('-500', '-400')}`}
+                      style={{ width: `${item.percentage}%` }}
+                    ></div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -160,33 +212,89 @@ export default function Dashboard() {
           
           {/* Top Companies */}
           <div className="mb-6">
-            <h4 className="text-sm font-medium text-gray-600 mb-2 flex items-center">
+            <h4 className="text-sm font-medium text-gray-600 mb-3 flex items-center">
               <BriefcaseIcon className="w-4 h-4 mr-2" />
               Top Companies
             </h4>
-            <div className="space-y-2">
-              {stats.topCompanies.map((company, index) => (
-                <div key={company} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700">{company}</span>
-                  <span className="text-gray-500">#{index + 1}</span>
+            <div className="space-y-3">
+              {stats.topCompanies.length > 0 ? (
+                stats.topCompanies.map((company, index) => {
+                  const companyApps = applications.filter(app => app.company === company)
+                  const companyCount = companyApps.length
+                  const companyStatuses = companyApps.reduce((acc, app) => {
+                    acc[app.status] = (acc[app.status] || 0) + 1
+                    return acc
+                  }, {} as Record<string, number>)
+                  
+                  return (
+                    <div key={company} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-bold text-primary-600">#{index + 1}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{company}</p>
+                          <p className="text-xs text-gray-500">{companyCount} application{companyCount !== 1 ? 's' : ''}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-gray-900">{companyCount}</div>
+                        {companyStatuses['Accepted'] && (
+                          <div className="text-xs text-green-600">✓ {companyStatuses['Accepted']} accepted</div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No company data yet</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           {/* Top Locations */}
           <div>
-            <h4 className="text-sm font-medium text-gray-600 mb-2 flex items-center">
+            <h4 className="text-sm font-medium text-gray-600 mb-3 flex items-center">
               <MapPinIcon className="w-4 h-4 mr-2" />
               Top Locations
             </h4>
-            <div className="space-y-2">
-              {stats.topLocations.map((location, index) => (
-                <div key={location} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700">{location}</span>
-                  <span className="text-gray-500">#{index + 1}</span>
+            <div className="space-y-3">
+              {stats.topLocations.length > 0 ? (
+                stats.topLocations.map((location, index) => {
+                  const locationApps = applications.filter(app => app.location === location)
+                  const locationCount = locationApps.length
+                  const locationStatuses = locationApps.reduce((acc, app) => {
+                    acc[app.status] = (acc[app.status] || 0) + 1
+                    return acc
+                  }, {} as Record<string, number>)
+                  
+                  return (
+                    <div key={location} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-bold text-blue-600">#{index + 1}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{location}</p>
+                          <p className="text-xs text-gray-500">{locationCount} application{locationCount !== 1 ? 's' : ''}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-gray-900">{locationCount}</div>
+                        {locationStatuses['Accepted'] && (
+                          <div className="text-xs text-green-600">✓ {locationStatuses['Accepted']} accepted</div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No location data yet</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </motion.div>
