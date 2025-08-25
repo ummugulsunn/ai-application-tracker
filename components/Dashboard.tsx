@@ -32,9 +32,16 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
 
+  // Function to refresh stats
+  const refreshStats = () => {
+    const newStats = getStats()
+    setStats(newStats)
+    setLastUpdated(new Date())
+  }
+
   useEffect(() => {
     if (isInitialized) {
-      setStats(getStats())
+      refreshStats()
       setIsLoading(false)
     }
   }, [isInitialized, getStats])
@@ -42,8 +49,7 @@ export default function Dashboard() {
   // Update stats when applications change
   useEffect(() => {
     if (isInitialized && applications.length > 0) {
-      setStats(getStats())
-      setLastUpdated(new Date())
+      refreshStats()
     }
   }, [applications, isInitialized, getStats])
 
@@ -128,9 +134,21 @@ export default function Dashboard() {
             Last updated: {lastUpdated.toLocaleTimeString()}
           </p>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-500">Total Applications</div>
-          <div className="text-3xl font-bold text-primary-600">{stats.total}</div>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={refreshStats}
+            className="btn-secondary flex items-center space-x-2 text-sm"
+            title="Refresh dashboard data"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
+          </button>
+          <div className="text-right">
+            <div className="text-sm text-gray-500">Total Applications</div>
+            <div className="text-3xl font-bold text-primary-600">{stats.total}</div>
+          </div>
         </div>
       </div>
 
@@ -324,6 +342,34 @@ export default function Dashboard() {
           </div>
         </div>
       </motion.div>
+
+      {/* Debug Information - Remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <motion.div 
+          className="card bg-gray-50 border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <details className="text-left">
+            <summary className="text-sm font-medium text-gray-700 cursor-pointer mb-2">
+              🔍 Debug: Raw Stats Data
+            </summary>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div>Total: {stats.total}</div>
+              <div>Pending: {stats.pending}</div>
+              <div>Applied: {stats.applied}</div>
+              <div>Interviewing: {stats.interviewing}</div>
+              <div>Offered: {stats.offered}</div>
+              <div>Rejected: {stats.rejected}</div>
+              <div>Accepted: {stats.accepted}</div>
+              <div>Success Rate: {stats.successRate}%</div>
+              <div>Avg Response Time: {stats.averageResponseTime} days</div>
+              <div>Applications with Response: {stats.applied + stats.interviewing + stats.offered + stats.rejected + stats.accepted}</div>
+            </div>
+          </details>
+        </motion.div>
+      )}
     </div>
   )
 }

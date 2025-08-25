@@ -17,6 +17,7 @@ interface ApplicationStore {
   exportApplications: () => string
   initializeSampleData: () => void
   cleanupInvalidData: () => void
+  forceUpdateStats: () => void
   
   // Filters and search
   setFilters: (filters: Partial<FilterOptions>) => void
@@ -281,6 +282,10 @@ export const useApplicationStore = create<ApplicationStore>()(
         }))
       },
 
+      forceUpdateStats: () => {
+        set({ isInitialized: false }) // Force re-calculation by resetting initialized state
+      },
+
       setFilters: (newFilters) => {
         set((state) => ({
           filters: { ...state.filters, ...newFilters }
@@ -387,10 +392,17 @@ export const useApplicationStore = create<ApplicationStore>()(
           topLocations: [] as string[]
         } as ApplicationStats)
 
-        // Calculate success rate
-        if (stats.applied > 0) {
-          stats.successRate = Math.round((stats.accepted / stats.applied) * 100)
+        // Calculate success rate - consider all applications that have received a response
+        const applicationsWithResponse = stats.applied + stats.interviewing + stats.offered + stats.rejected + stats.accepted
+        if (applicationsWithResponse > 0) {
+          stats.successRate = Math.round((stats.accepted / applicationsWithResponse) * 100)
+        } else if (stats.total > 0) {
+          // If no responses yet, show 0% success rate
+          stats.successRate = 0
         }
+
+        // Alternative success rate calculation: accepted vs total applications
+        // const overallSuccessRate = stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0
 
         // Calculate average response time
         const responseTimes = applications
