@@ -35,7 +35,7 @@ export default function EditApplicationModal({ isOpen, onClose, application }: E
     priority: 'Medium' as Application['priority']
   })
 
-  // Application değiştiğinde form'u güncelle
+  // Update form when application changes
   useEffect(() => {
     if (application) {
       setFormData({
