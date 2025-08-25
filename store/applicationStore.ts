@@ -292,7 +292,9 @@ export const useApplicationStore = create<ApplicationStore>()(
         }
         if (filters.dateRange.start || filters.dateRange.end) {
           filtered = filtered.filter(app => {
+            if (!app.appliedDate) return true // Skip apps without applied date
             const appliedDate = new Date(app.appliedDate)
+            if (isNaN(appliedDate.getTime())) return true // Skip invalid dates
             const start = filters.dateRange.start ? new Date(filters.dateRange.start) : null
             const end = filters.dateRange.end ? new Date(filters.dateRange.end) : null
             
@@ -352,8 +354,15 @@ export const useApplicationStore = create<ApplicationStore>()(
           .map(app => {
             const applied = new Date(app.appliedDate!)
             const response = new Date(app.responseDate!)
+            
+            // Validate dates before calculation
+            if (isNaN(applied.getTime()) || isNaN(response.getTime())) {
+              return null
+            }
+            
             return (response.getTime() - applied.getTime()) / (1000 * 60 * 60 * 24)
           })
+          .filter(time => time !== null) as number[]
         
         if (responseTimes.length > 0) {
           stats.averageResponseTime = Math.round(

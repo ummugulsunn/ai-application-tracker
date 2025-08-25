@@ -193,10 +193,10 @@ export default function ApplicationTable() {
                     
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {new Date(application.appliedDate).toLocaleDateString()}
+                        {application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'N/A'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {formatDistanceToNow(new Date(application.appliedDate), { addSuffix: true })}
+                        {application.appliedDate ? formatDistanceToNow(new Date(application.appliedDate), { addSuffix: true }) : 'N/A'}
                       </div>
                     </td>
                     
@@ -302,7 +302,7 @@ export default function ApplicationTable() {
                   <div>
                     <span className="font-medium text-gray-700">Applied:</span>
                     <span className="ml-2 text-gray-900">
-                      {new Date(selectedApplication.appliedDate).toLocaleDateString()}
+                      {selectedApplication.appliedDate ? new Date(selectedApplication.appliedDate).toLocaleDateString() : 'N/A'}
                     </span>
                   </div>
                 </div>

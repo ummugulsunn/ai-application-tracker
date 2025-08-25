@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { 
   BriefcaseIcon, 
   ClockIcon, 
@@ -14,8 +15,51 @@ import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'react-hot-toast'
 
 export default function Dashboard() {
-  const { getStats, fixDuplicateIds } = useApplicationStore()
-  const stats = getStats()
+  const { getStats, isInitialized } = useApplicationStore()
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    applied: 0,
+    interviewing: 0,
+    offered: 0,
+    rejected: 0,
+    accepted: 0,
+    successRate: 0,
+    averageResponseTime: 0,
+    topCompanies: [] as string[],
+    topLocations: [] as string[]
+  })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (isInitialized) {
+      setStats(getStats())
+      setIsLoading(false)
+    }
+  }, [isInitialized, getStats])
+
+  // Don't render until store is initialized to prevent hydration mismatch
+  if (isLoading || !isInitialized) {
+    return (
+      <div className="space-y-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((index) => (
+            <div key={index} className="card animate-pulse">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-16"></div>
+                </div>
+                <div className="p-3 rounded-full bg-gray-200">
+                  <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   const statCards = [
     {
@@ -80,20 +124,6 @@ export default function Dashboard() {
             </div>
           </motion.div>
         ))}
-      </div>
-
-      {/* Utility Actions */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => {
-            fixDuplicateIds()
-            toast.success('Duplicate IDs have been fixed')
-          }}
-          className="btn-secondary text-sm"
-          title="Fix any duplicate application IDs"
-        >
-          Fix Duplicate IDs
-        </button>
       </div>
 
       {/* Status Breakdown and Top Companies */}
