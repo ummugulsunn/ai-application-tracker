@@ -16,6 +16,7 @@ interface ApplicationStore {
   importApplications: (applications: Application[]) => void
   exportApplications: () => string
   initializeSampleData: () => void
+  cleanupInvalidData: () => void
   
   // Filters and search
   setFilters: (filters: Partial<FilterOptions>) => void
@@ -114,6 +115,31 @@ const generateUniqueId = (): string => {
   return `app_${idCounter}_${random}`
 }
 
+// Helper function to validate and clean dates
+const validateAndCleanDate = (dateString: string | null | undefined): string | null => {
+  if (!dateString) return null
+  
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return null
+    return date.toISOString().split('T')[0] // Return YYYY-MM-DD format
+  } catch {
+    return null
+  }
+}
+
+// Helper function to clean application data
+const cleanApplicationData = (app: any): Application => {
+  return {
+    ...app,
+    appliedDate: validateAndCleanDate(app.appliedDate) || new Date().toISOString().split('T')[0],
+    responseDate: validateAndCleanDate(app.responseDate),
+    interviewDate: validateAndCleanDate(app.interviewDate),
+    createdAt: validateAndCleanDate(app.createdAt) || new Date().toISOString(),
+    updatedAt: validateAndCleanDate(app.updatedAt) || new Date().toISOString()
+  }
+}
+
 export const useApplicationStore = create<ApplicationStore>()(
   persist(
     (set, get) => ({
@@ -126,7 +152,13 @@ export const useApplicationStore = create<ApplicationStore>()(
       initializeSampleData: () => {
         const { applications, isInitialized } = get()
         if (!isInitialized && applications.length === 0) {
-          set({ applications: sampleData, isInitialized: true })
+          // Clean sample data before setting
+          const cleanedSampleData = sampleData.map(cleanApplicationData)
+          set({ applications: cleanedSampleData, isInitialized: true })
+        } else if (isInitialized && applications.length > 0) {
+          // Clean existing applications to fix any invalid dates
+          const cleanedApplications = applications.map(cleanApplicationData)
+          set({ applications: cleanedApplications })
         }
       },
 
@@ -151,8 +183,11 @@ export const useApplicationStore = create<ApplicationStore>()(
           updatedAt: now
         }
         
+        // Clean the application data before adding
+        const cleanedApplication = cleanApplicationData(newApplication)
+        
         set((state) => ({
-          applications: [...state.applications, newApplication]
+          applications: [...state.applications, cleanedApplication]
         }))
       },
 
@@ -160,7 +195,7 @@ export const useApplicationStore = create<ApplicationStore>()(
         set((state) => ({
           applications: state.applications.map(app =>
             app.id === id
-              ? { ...app, ...updates, updatedAt: new Date().toISOString() }
+              ? cleanApplicationData({ ...app, ...updates, updatedAt: new Date().toISOString() })
               : app
           )
         }))
@@ -191,12 +226,15 @@ export const useApplicationStore = create<ApplicationStore>()(
             attempts++
           }
           
-          return {
+          // Clean the application data before adding
+          const cleanedApp = cleanApplicationData({
             ...app,
             id: newId,
             createdAt: app.createdAt || now,
             updatedAt: now
-          }
+          })
+          
+          return cleanedApp
         })
         
         set((state) => ({
@@ -235,6 +273,12 @@ export const useApplicationStore = create<ApplicationStore>()(
           .join('\n')
         
         return csvContent
+      },
+
+      cleanupInvalidData: () => {
+        set((state) => ({
+          applications: state.applications.map(cleanApplicationData)
+        }))
       },
 
       setFilters: (newFilters) => {

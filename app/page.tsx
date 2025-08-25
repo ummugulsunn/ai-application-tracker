@@ -6,18 +6,21 @@ import Dashboard from '../components/Dashboard'
 import ApplicationTable from '../components/ApplicationTable'
 import AddApplicationModal from '../components/AddApplicationModal'
 import ImportModal from '../components/ImportModal'
+import ErrorBoundary from '../components/ErrorBoundary'
 import { useApplicationStore } from '../store/applicationStore'
 import { toast } from 'react-hot-toast'
 
 export default function Home() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
-  const { initializeSampleData, importApplications } = useApplicationStore()
+  const { initializeSampleData, importApplications, cleanupInvalidData } = useApplicationStore()
 
   // Initialize sample data once when component mounts
   useEffect(() => {
     initializeSampleData()
-  }, [initializeSampleData])
+    // Clean up any invalid data that might exist
+    cleanupInvalidData()
+  }, [initializeSampleData, cleanupInvalidData])
 
   const handleImportSuccess = (importedApps: any[]) => {
     importApplications(importedApps)
@@ -33,8 +36,12 @@ export default function Home() {
       />
       
       <main className="container mx-auto px-4 py-8">
-        <Dashboard />
-        <ApplicationTable />
+        <ErrorBoundary>
+          <Dashboard />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <ApplicationTable />
+        </ErrorBoundary>
       </main>
 
       <AddApplicationModal 
