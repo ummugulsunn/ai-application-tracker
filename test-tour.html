@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-element { 
+            padding: 20px; 
+            margin: 20px; 
+            border: 2px solid #ccc; 
+            border-radius: 8px; 
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Interactive Tour Test</h1>
+    
+    <div data-tour="header" class="test-element">
+        <h2>Header Element</h2>
+        <p>This element has data-tour="header"</p>
+    </div>
+    
+    <div data-tour="add-button" class="test-element">
+        <h2>Add Button Element</h2>
+        <p>This element has data-tour="add-button"</p>
+    </div>
+    
+    <div data-tour="stats-cards" class="test-element">
+        <h2>Stats Cards Element</h2>
+        <p>This element has data-tour="stats-cards"</p>
+    </div>
+    
+    <div data-tour="application-table" class="test-element">
+        <h2>Application Table Element</h2>
+        <p>This element has data-tour="application-table"</p>
+    </div>
+    
+    <button onclick="testTourElements()">Test Tour Elements</button>
+    <div id="results"></div>
+    
+    <script>
+        function testTourElements() {
+            const results = document.getElementById('results');
+            const tourElements = [
+                'header',
+                'add-button', 
+                'import-button',
+                'stats-cards',
+                'status-breakdown',
+                'insights',
+                'application-table',
+                'help-button'
+            ];
+            
+            let html = '<h3>Tour Element Test Results:</h3>';
+            
+            tourElements.forEach(selector => {
+                const element = document.querySelector(`[data-tour="${selector}"]`);
+                if (element) {
+                    html += `<p class="success">✓ Found: [data-tour="${selector}"]</p>`;
+                } else {
+                    html += `<p class="error">✗ Missing: [data-tour="${selector}"]</p>`;
+                }
+            });
+            
+            results.innerHTML = html;
+        }
+        
+        // Test on page load
+        window.onload = testTourElements;
+    </script>
+</body>
+</html>

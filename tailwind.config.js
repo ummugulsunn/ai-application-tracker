@@ -64,6 +64,7 @@ module.exports = {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'bounce-gentle': 'bounceGentle 2s infinite',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         fadeIn: {
@@ -79,7 +80,46 @@ module.exports = {
           '50%': { transform: 'translateY(-5px)' },
         },
       },
+      screens: {
+        'xs': '475px',
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.high-contrast': {
+          filter: 'contrast(150%) brightness(110%)',
+        },
+        '.focus-visible-ring': {
+          '&:focus-visible': {
+            outline: '2px solid #2563eb',
+            outlineOffset: '2px',
+          },
+        },
+        '.skip-link': {
+          position: 'absolute',
+          left: '-9999px',
+          zIndex: '999',
+          padding: '8px 16px',
+          backgroundColor: '#2563eb',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '4px',
+          '&:focus': {
+            left: '6px',
+            top: '6px',
+          },
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }

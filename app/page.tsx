@@ -4,109 +4,211 @@ import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Dashboard from '@/components/Dashboard'
 import ApplicationTable from '@/components/ApplicationTable'
+import { 
+  LazyImportModal,
+  LazyExportModal,
+  LazyBulkDuplicateManager,
+  LazyBackupManager,
+  LazyWelcomeWizard,
+  LazyFeatureTour
+} from '@/components/lazy/LazyComponents'
 import AddApplicationModal from '@/components/AddApplicationModal'
-import ImportModal from '@/components/ImportModal'
-import { Application, useApplicationStore } from '@/store/applicationStore'
+import { QuickStart, ProgressiveDisclosure, OnboardingProgress } from '@/components/onboarding'
+import { Application } from '@/types/application'
+import { useApplicationStore } from '@/store/applicationStore'
+import { useOnboardingStore } from '@/store/onboardingStore'
+import { initializeAuthState } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 
 export default function Home() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
-  const { applications, addApplication, importApplications } = useApplicationStore()
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
+  const [isBulkDuplicateManagerOpen, setIsBulkDuplicateManagerOpen] = useState(false)
+  const [isBackupManagerOpen, setIsBackupManagerOpen] = useState(false)
+  const { applications, addApplication, importApplications, getStats } = useApplicationStore()
+  const { 
+    isFirstVisit, 
+    showWelcomeWizard, 
+    showFeatureTour,
+    showWizard,
+    hideWizard,
+    showTour,
+    hideTour,
+    completeStep,
+    skipOnboarding
+  } = useOnboardingStore()
 
-  // Sample data for demonstration
+  // Initialize authentication state
   useEffect(() => {
-    if (applications.length === 0) {
-      const sampleData: Application[] = [
-        {
-          id: '1',
-          company: 'Spotify',
-          position: 'Software Engineer Intern',
-          location: 'Stockholm, Sweden',
-          type: 'Internship',
-          salary: '15,000 SEK/month',
-          status: 'Applied',
-          appliedDate: '2024-01-15',
-          responseDate: null,
-          interviewDate: null,
-          notes: 'Applied through LinkedIn. Position focuses on backend development.',
-          contactPerson: 'Sarah Johnson',
-          contactEmail: 'careers@spotify.com',
-          website: 'https://spotify.com/careers',
-          tags: ['Backend', 'Music', 'Sweden'],
-          priority: 'High'
-        },
-        {
-          id: '2',
-          company: 'Klarna',
-          position: 'Data Science Intern',
-          location: 'Stockholm, Sweden',
-          type: 'Internship',
-          salary: '14,000 SEK/month',
-          status: 'Interviewing',
-          appliedDate: '2024-01-10',
-          responseDate: '2024-01-20',
-          interviewDate: '2024-02-05',
-          notes: 'First round interview scheduled. Technical assessment completed.',
-          contactPerson: 'Marcus Andersson',
-          contactEmail: 'internships@klarna.com',
-          website: 'https://klarna.com/careers',
-          tags: ['Data Science', 'Fintech', 'Sweden'],
-          priority: 'High'
-        },
-        {
-          id: '3',
-          company: 'Ericsson',
-          position: 'Network Engineering Intern',
-          location: 'Gothenburg, Sweden',
-          type: 'Internship',
-          salary: '12,000 SEK/month',
-          status: 'Pending',
-          appliedDate: '2024-01-20',
-          responseDate: null,
-          interviewDate: null,
-          notes: 'Application submitted. Waiting for response.',
-          contactPerson: 'Elena Petrova',
-          contactEmail: 'career@ericsson.com',
-          website: 'https://ericsson.com/careers',
-          tags: ['Networking', 'Telecom', 'Sweden'],
-          priority: 'Medium'
-        }
-      ]
-      
-      sampleData.forEach(app => addApplication(app))
-      toast.success('Sample data loaded! Start tracking your applications.')
+    initializeAuthState()
+  }, [])
+
+  // Show welcome wizard for first-time users
+  useEffect(() => {
+    if (isFirstVisit && applications.length === 0) {
+      // Small delay to ensure page is loaded
+      const timer = setTimeout(() => {
+        showWizard()
+      }, 1000)
+      return () => clearTimeout(timer)
     }
-  }, [applications.length, addApplication])
+    return undefined
+  }, [isFirstVisit, applications.length, showWizard])
 
   const handleImportSuccess = (importedApps: Application[]) => {
     importApplications(importedApps)
     setIsImportModalOpen(false)
+    completeStep('add-application')
     toast.success(`Successfully imported ${importedApps.length} applications!`)
+  }
+
+  const handleAddApplication = () => {
+    setIsAddModalOpen(true)
+    completeStep('add-application')
+  }
+
+  const handleStartTour = () => {
+    try {
+      completeStep('explore-features')
+      // Add a small delay to ensure DOM is ready
+      setTimeout(() => {
+        showTour()
+      }, 500)
+    } catch (error) {
+      console.error('Error starting tour:', error)
+    }
+  }
+
+  const handleShowHelp = () => {
+    try {
+      // Add a small delay to ensure DOM is ready
+      setTimeout(() => {
+        showTour()
+      }, 500)
+    } catch (error) {
+      console.error('Error showing help:', error)
+    }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header 
-        onAddNew={() => setIsAddModalOpen(true)}
+        data-tour="header"
+        onAddNew={handleAddApplication}
         onImport={() => setIsImportModalOpen(true)}
+        onExport={() => setIsExportModalOpen(true)}
+        onShowHelp={handleShowHelp}
       />
       
-      <main className="container mx-auto px-4 py-8">
-        <Dashboard />
-        <ApplicationTable />
+      <main className="w-full max-w-screen-2xl mx-auto px-4 py-8">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Onboarding Progress - shown for users getting started */}
+          {applications.length > 0 && applications.length < 20 && (
+            <OnboardingProgress
+              onStartAction={(actionId) => {
+                switch (actionId) {
+                  case 'first-application':
+                    handleAddApplication()
+                    break
+                  case 'five-applications':
+                    handleAddApplication()
+                    break
+                  default:
+                    break
+                }
+              }}
+            />
+          )}
+
+          {/* Quick Start Guide - shown for users with some progress */}
+          {applications.length > 0 && applications.length < 8 && (
+            <QuickStart
+              onAddApplication={handleAddApplication}
+              onImportCSV={() => setIsImportModalOpen(true)}
+              onStartTour={handleStartTour}
+            />
+          )}
+
+          <Dashboard 
+            onAddNew={handleAddApplication}
+            onImport={() => setIsImportModalOpen(true)}
+            onExport={() => setIsExportModalOpen(true)}
+            onManageDuplicates={() => setIsBulkDuplicateManagerOpen(true)}
+            onManageBackups={() => setIsBackupManagerOpen(true)}
+          />
+          
+          <ApplicationTable data-tour="application-table" />
+
+          {/* Progressive Disclosure - shown when user has applications */}
+          {applications.length > 0 && (
+            <ProgressiveDisclosure className="mt-8" />
+          )}
+        </div>
       </main>
 
+      {/* Modals */}
       <AddApplicationModal 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
 
-      <ImportModal 
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImportSuccess={handleImportSuccess}
-      />
+      {/* Lazy-loaded Modals */}
+      {isImportModalOpen && (
+        <LazyImportModal 
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onImportSuccess={handleImportSuccess}
+        />
+      )}
+
+      {isExportModalOpen && (
+        <LazyExportModal 
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          applications={applications}
+          stats={getStats()}
+        />
+      )}
+
+      {isBulkDuplicateManagerOpen && (
+        <LazyBulkDuplicateManager
+          isOpen={isBulkDuplicateManagerOpen}
+          onClose={() => setIsBulkDuplicateManagerOpen(false)}
+        />
+      )}
+
+      {isBackupManagerOpen && (
+        <LazyBackupManager
+          isOpen={isBackupManagerOpen}
+          onClose={() => setIsBackupManagerOpen(false)}
+        />
+      )}
+
+      {/* Lazy-loaded Onboarding Components */}
+      {showWelcomeWizard && (
+        <LazyWelcomeWizard
+          isOpen={showWelcomeWizard}
+          onClose={hideWizard}
+          onStartTour={handleStartTour}
+          onAddApplication={handleAddApplication}
+          onImportCSV={() => setIsImportModalOpen(true)}
+        />
+      )}
+
+      {showFeatureTour && (
+        <LazyFeatureTour
+          isOpen={showFeatureTour}
+          onClose={hideTour}
+          onComplete={() => {
+            try {
+              completeStep('explore-features')
+            } catch (error) {
+              console.error('Error completing tour step:', error)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
