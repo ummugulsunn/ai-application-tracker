@@ -56,6 +56,7 @@ export function MonitoringDashboard() {
 
       return () => clearInterval(interval)
     }
+    return undefined
   }, [isMonitoringEnabled])
 
   const fetchHealthStatus = async () => {
@@ -276,7 +277,9 @@ export function MonitoringDashboard() {
             </div>
             
             <div className="text-sm text-gray-600">
-              <p>Last updated: {new Date(performanceMetrics[performanceMetrics.length - 1]?.timestamp).toLocaleTimeString()}</p>
+              <p>Last updated: {performanceMetrics.length > 0 && performanceMetrics[performanceMetrics.length - 1]?.timestamp 
+                ? new Date(performanceMetrics[performanceMetrics.length - 1]!.timestamp!).toLocaleTimeString()
+                : 'Never'}</p>
             </div>
           </div>
         )}

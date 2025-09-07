@@ -165,6 +165,31 @@ export class CSVTemplateSystem {
         ['SAP', 'Software Engineer', 'Berlin, Germany', '€75,000', 'Permanent', 'Interviewing', '2024-01-20', 'Technical interview scheduled'],
         ['ASML', 'Hardware Engineer', 'Eindhoven, Netherlands', '€68,000', 'Permanent', 'Pending', '2024-01-25', 'Waiting for response']
       ]
+    },
+
+    erasmus_turkish: {
+      id: 'erasmus_turkish',
+      name: 'Erasmus Staj Takip (Türkçe)',
+      description: 'Türkçe Erasmus staj başvuru takip listesi formatı',
+      source: 'custom',
+      fieldMappings: [
+        { csvColumn: 'Şirket Adı', applicationField: 'company', confidence: 1.0, required: true },
+        { csvColumn: 'Ülke', applicationField: 'location', confidence: 1.0, required: false },
+        { csvColumn: 'Sektör', applicationField: 'tags', confidence: 1.0, required: false },
+        { csvColumn: 'E-posta Tarihi', applicationField: 'appliedDate', confidence: 1.0, required: false },
+        { csvColumn: 'Cevap Tarihi', applicationField: 'responseDate', confidence: 1.0, required: false },
+        { csvColumn: 'Durum', applicationField: 'status', confidence: 1.0, required: false },
+        { csvColumn: 'İletişim Bilgisi', applicationField: 'contactEmail', confidence: 1.0, required: false },
+        { csvColumn: 'Notlar', applicationField: 'notes', confidence: 1.0, required: false },
+        // Add position mapping with default value
+        { csvColumn: 'Pozisyon', applicationField: 'position', confidence: 0.8, required: false }
+      ],
+      sampleData: [
+        ['Şirket Adı', 'Ülke', 'Sektör', 'E-posta Tarihi', 'Cevap Tarihi', 'Durum', 'İletişim Bilgisi', 'Notlar', 'Pozisyon'],
+        ['Spotify', 'İsveç', 'Technology/Music', '2024-01-15', '', 'Başvuru Planlanıyor', 'careers@spotify.com', 'Müzik teknolojisi alanında staj', 'Stajyer'],
+        ['Klarna', 'İsveç', 'Fintech', '2024-01-20', '2024-01-25', 'Cevap Bekleniyor', 'internships@klarna.com', 'Fintech sektöründe deneyim', 'Yazılım Geliştirici Stajyeri'],
+        ['Ericsson', 'İsveç', 'Telecommunications', '2024-01-18', '', 'Başvuru Yapıldı', 'career@ericsson.com', 'Telekomünikasyon mühendisliği', 'Mühendislik Stajyeri']
+      ]
     }
   }
 
@@ -234,7 +259,8 @@ export class CSVTemplateSystem {
     let bestConfidence = 0
     let bestMatchedFields = 0
 
-    const normalizedHeaders = headers.map(h => h.toLowerCase().trim())
+    // Normalize headers and handle encoding issues
+    const normalizedHeaders = headers.map(h => this.normalizeHeader(h))
 
     for (const template of Object.values(this.TEMPLATES)) {
       let matchedFields = 0
@@ -242,7 +268,7 @@ export class CSVTemplateSystem {
       let matchedWeight = 0
 
       for (const mapping of template.fieldMappings) {
-        const normalizedColumn = mapping.csvColumn.toLowerCase().trim()
+        const normalizedColumn = this.normalizeHeader(mapping.csvColumn)
         const weight = mapping.required ? 2 : 1
         totalWeight += weight
 
@@ -262,6 +288,15 @@ export class CSVTemplateSystem {
           matchedFields++
           matchedWeight += weight * 0.7 // Partial match gets 70% weight
         }
+
+        // Special handling for Turkish Erasmus template
+        if (template.id === 'erasmus_turkish') {
+          const turkishMatch = this.checkTurkishMatch(headers, mapping.csvColumn)
+          if (turkishMatch) {
+            matchedFields++
+            matchedWeight += weight * 0.9 // High confidence for Turkish matches
+          }
+        }
       }
 
       const confidence = totalWeight > 0 ? matchedWeight / totalWeight : 0
@@ -278,6 +313,49 @@ export class CSVTemplateSystem {
       confidence: bestConfidence,
       matchedFields: bestMatchedFields
     }
+  }
+
+  /**
+   * Normalize header for better matching
+   */
+  private static normalizeHeader(header: string): string {
+    return header
+      .toLowerCase()
+      .trim()
+      // Handle common encoding issues
+      .replace(/ã¼/g, 'ü')
+      .replace(/ã¶/g, 'ö')
+      .replace(/ã§/g, 'ç')
+      .replace(/ä±/g, 'ı')
+      .replace(/ä°/g, 'i')
+      .replace(/åž/g, 'ş')
+      .replace(/å/g, 'ğ')
+  }
+
+  /**
+   * Check for Turkish-specific matches
+   */
+  private static checkTurkishMatch(headers: string[], expectedColumn: string): boolean {
+    const turkishMappings: Record<string, string[]> = {
+      'şirket adı': ['sirket', 'company', 'firma'],
+      'ülke': ['ulke', 'country', 'location'],
+      'sektör': ['sektor', 'sector', 'industry'],
+      'e-posta tarihi': ['eposta', 'email', 'tarih', 'date'],
+      'cevap tarihi': ['cevap', 'response', 'yanitlama'],
+      'durum': ['status', 'state'],
+      'iletişim bilgisi': ['iletisim', 'contact', 'email'],
+      'notlar': ['notes', 'note', 'aciklama']
+    }
+
+    const expectedLower = expectedColumn.toLowerCase()
+    const possibleMatches = turkishMappings[expectedLower] || []
+
+    return headers.some(header => {
+      const headerLower = this.normalizeHeader(header)
+      return possibleMatches.some(match => 
+        headerLower.includes(match) || match.includes(headerLower)
+      )
+    })
   }
 
   /**

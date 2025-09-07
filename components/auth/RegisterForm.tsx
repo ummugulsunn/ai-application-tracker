@@ -35,7 +35,7 @@ export function RegisterForm() {
 
       if (result.success) {
         toast.success("Account created successfully! Please sign in.")
-        router.push("/auth/login")
+        router.push("/auth/signin")
       } else {
         toast.error(result.error?.message || "Registration failed")
       }

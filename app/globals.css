@@ -5,6 +5,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
+  :root {
+    --toast-bg: #363636;
+    --toast-color: #fff;
+  }
+
+  [data-theme="dark"], .dark {
+    --toast-bg: #1f2937;
+    --toast-color: #f9fafb;
+  }
+
   html {
     font-family: 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
@@ -143,6 +153,11 @@
   .btn-secondary {
     @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-all duration-200;
   }
+
+  /* Dark mode button styles */
+  .dark .btn-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-gray-200;
+  }
   
   .btn-success {
     @apply bg-success-600 hover:bg-success-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
@@ -161,9 +176,23 @@
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200;
   }
+
+  /* Dark mode card styles */
+  .dark .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark .card-base {
+    @apply bg-gray-800 border-gray-700;
+  }
   
   .input-field {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+  }
+
+  /* Dark mode input styles */
+  .dark .input-field {
+    @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400;
   }
   
   .status-badge {

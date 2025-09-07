@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { User, Settings } from "lucide-react"
 import { useAuthStore } from "@/store/authStore"
-import { UserProfileModal } from "./UserProfileModal"
+import EnhancedUserProfileModal from "./EnhancedUserProfileModal"
 
 export function ProfileButton() {
   const { user, profile, isAuthenticated } = useAuthStore()
@@ -38,7 +38,7 @@ export function ProfileButton() {
         </button>
       </div>
 
-      <UserProfileModal
+      <EnhancedUserProfileModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />

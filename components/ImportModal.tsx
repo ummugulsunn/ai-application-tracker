@@ -178,12 +178,20 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess, existing
       warnings: []
     })
 
-    // Enhanced validation with duplicate detection
+    // Enhanced validation with duplicate detection and auto-fixes
     const validation = CSVProcessor.validateData(data, mapping, existingApplications)
     setValidationErrors(validation.errors)
     setValidationWarnings(validation.warnings)
     setDuplicateGroups(validation.duplicateGroups)
     setValidationSummary(validation.validationSummary)
+    
+    // Show auto-fixes if any were applied
+    if (validation.autoFixes && validation.autoFixes.length > 0) {
+      toast.success(`Applied ${validation.autoFixes.length} automatic fixes`, {
+        duration: 5000,
+        id: 'auto-fixes'
+      })
+    }
 
     setProgress(null)
 
@@ -226,11 +234,14 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess, existing
       onImportSuccess(result.applications)
       toast.success(`Successfully imported ${result.applications.length.toLocaleString()} applications!`)
       
-      // Reset and close after a short delay
+      // Show success message and keep modal open for user to see results
+      setImportSummary(result.summary)
+      
+      // Auto-close after 3 seconds or let user close manually
       setTimeout(() => {
         resetState()
         onClose()
-      }, 2000)
+      }, 3000)
 
     } catch (error) {
       toast.error(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -535,13 +546,20 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess, existing
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">Import Complete!</h3>
                         <div className="mt-2 text-sm text-gray-600 space-y-1">
-                          <p>Successfully imported {importSummary.successfulImports.toLocaleString()} applications</p>
+                          <p className="text-lg font-semibold text-green-600">
+                            Successfully imported {importSummary.successfulImports.toLocaleString()} applications
+                          </p>
                           {importSummary.skippedRows > 0 && (
-                            <p>Skipped {importSummary.skippedRows} rows due to errors</p>
+                            <p className="text-yellow-600">Skipped {importSummary.skippedRows} rows due to errors</p>
                           )}
                           {importSummary.duplicatesFound > 0 && (
-                            <p>Found {importSummary.duplicatesFound} potential duplicates</p>
+                            <p className="text-blue-600">Found {importSummary.duplicatesFound} potential duplicates</p>
                           )}
+                        </div>
+                        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-sm text-green-800">
+                            Your applications have been added to your dashboard. You can now view, edit, and manage them.
+                          </p>
                         </div>
                       </div>
                     </div>

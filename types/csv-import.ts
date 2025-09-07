@@ -1,6 +1,6 @@
 export interface CSVImportConfig {
   delimiter: ',' | ';' | '\t' | '|'
-  encoding: 'utf-8' | 'iso-8859-1' | 'windows-1252'
+  encoding: 'utf-8' | 'iso-8859-1' | 'windows-1252' | 'windows-1254' | 'iso-8859-9'
   hasHeader: boolean
   skipEmptyLines: boolean
   trimWhitespace: boolean
@@ -68,7 +68,7 @@ export interface ImportSummary {
 }
 
 export interface EncodingDetectionResult {
-  encoding: CSVImportConfig['encoding']
+  encoding: 'utf-8' | 'iso-8859-1' | 'windows-1252' | 'windows-1254' | 'iso-8859-9'
   confidence: number
   sample: string
 }

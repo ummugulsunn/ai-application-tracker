@@ -14,12 +14,24 @@ export class EncodingDetector {
     const results = await Promise.all([
       this.testUTF8(buffer),
       this.testISO88591(buffer),
-      this.testWindows1252(buffer)
+      this.testWindows1252(buffer),
+      this.testTurkishEncoding(buffer)
     ])
 
     // Sort by confidence and return the best match
     results.sort((a, b) => b.confidence - a.confidence)
-    return results[0]!
+    
+    // If no encoding has high confidence, default to UTF-8
+    const bestResult = results[0]!
+    if (bestResult.confidence < 0.3) {
+      return {
+        encoding: 'utf-8',
+        confidence: 0.5,
+        sample: 'Defaulting to UTF-8'
+      }
+    }
+    
+    return bestResult
   }
 
   /**
@@ -184,6 +196,69 @@ export class EncodingDetector {
   }
 
   /**
+   * Test Turkish encoding (ISO-8859-9 / Windows-1254)
+   */
+  private static async testTurkishEncoding(buffer: ArrayBuffer): Promise<EncodingDetectionResult> {
+    // Try Windows-1254 first (more common for Turkish)
+    try {
+      const decoder = new TextDecoder('windows-1254')
+      const text = decoder.decode(buffer)
+      const confidence = this.calculateTurkishConfidence(text)
+      
+      return {
+        encoding: 'windows-1254',
+        confidence,
+        sample: text.substring(0, 200)
+      }
+    } catch (error) {
+      // Fallback to ISO-8859-9
+      try {
+        const decoder = new TextDecoder('iso-8859-9')
+        const text = decoder.decode(buffer)
+        const confidence = this.calculateTurkishConfidence(text) * 0.8 // Slightly lower confidence
+        
+        return {
+          encoding: 'iso-8859-9',
+          confidence,
+          sample: text.substring(0, 200)
+        }
+      } catch (error) {
+        return {
+          encoding: 'windows-1254',
+          confidence: 0,
+          sample: ''
+        }
+      }
+    }
+  }
+
+  /**
+   * Calculate Turkish encoding confidence
+   */
+  private static calculateTurkishConfidence(text: string): number {
+    let confidence = 0.1 // Base confidence
+    
+    // Check for Turkish-specific characters
+    const turkishChars = text.match(/[çğıöşüÇĞIİÖŞÜ]/g)
+    if (turkishChars) {
+      confidence += Math.min(0.6, turkishChars.length / text.length * 10)
+    }
+    
+    // Check for Turkish words
+    const turkishWords = text.match(/\b(şirket|adı|ülke|sektör|durum|tarih|bilgi|notlar|başvuru|cevap|iletişim)\b/gi)
+    if (turkishWords) {
+      confidence += Math.min(0.4, turkishWords.length / 20)
+    }
+    
+    // Check for common CSV patterns
+    if (this.hasCommonCSVPatterns(text)) {
+      confidence += 0.1
+    }
+    
+    return Math.min(1, confidence)
+  }
+
+  /**
    * Read file with detected encoding
    */
   static async readFileWithEncoding(file: File, encoding: string): Promise<string> {
@@ -192,8 +267,41 @@ export class EncodingDetector {
       reader.onload = () => {
         try {
           const buffer = reader.result as ArrayBuffer
-          const decoder = new TextDecoder(encoding)
-          const text = decoder.decode(buffer)
+          
+          // Try multiple encodings if the detected one fails
+          const encodingsToTry = [
+            encoding,
+            'utf-8',
+            'windows-1254', // Turkish
+            'iso-8859-9',   // Turkish
+            'windows-1252', // Western European
+            'iso-8859-1'    // Latin-1
+          ]
+          
+          let text = ''
+          let success = false
+          
+          for (const enc of encodingsToTry) {
+            try {
+              const decoder = new TextDecoder(enc, { fatal: true })
+              text = decoder.decode(buffer)
+              success = true
+              break
+            } catch (error) {
+              // Try next encoding
+              continue
+            }
+          }
+          
+          if (!success) {
+            // Last resort: use UTF-8 with error replacement
+            const decoder = new TextDecoder('utf-8', { fatal: false })
+            text = decoder.decode(buffer)
+          }
+          
+          // Apply character encoding fixes
+          text = this.fixEncodingIssues(text)
+          
           resolve(text)
         } catch (error) {
           reject(error)
@@ -202,5 +310,53 @@ export class EncodingDetector {
       reader.onerror = () => reject(reader.error)
       reader.readAsArrayBuffer(file)
     })
+  }
+
+  /**
+   * Fix common encoding issues in the text
+   */
+  private static fixEncodingIssues(text: string): string {
+    // Common encoding fixes for Turkish and European characters
+    const fixes: Record<string, string> = {
+      // Turkish character fixes
+      'Ä°': 'İ',
+      'Ã§': 'ç',
+      'Ã¶': 'ö',
+      'Ã¼': 'ü',
+      'Ä±': 'ı',
+      'Åž': 'ş',
+      'Ä°sveÃ§': 'İsveç',
+      'NorveÃ§': 'Norveç',
+      'DanimarkaÃ§': 'Danimarkac',
+      'AlmanyaÃ§': 'Almanyac',
+      'FransaÃ§': 'Fransac',
+      'HollandaÃ§': 'Hollandac',
+      'Ä°ngilterÃ§': 'İngilterç',
+      
+      // European character fixes
+      'Ã¤': 'ä',
+      'Ã¥': 'å',
+      'Ã¦': 'æ',
+      'Ã¸': 'ø',
+      'Ã©': 'é',
+      'Ã¡': 'á',
+      'Ã­': 'í',
+      'Ã³': 'ó',
+      'Ãº': 'ú',
+      'Ã±': 'ñ',
+      
+      // Common word fixes
+      'Ã§alÄ±ÅŸma': 'çalışma',
+      'Ã¶Ä±renci': 'öğrenci',
+      'Ã¼niversite': 'üniversite',
+      'baÅŸvuru': 'başvuru'
+    }
+
+    let fixed = text
+    for (const [wrong, correct] of Object.entries(fixes)) {
+      fixed = fixed.replace(new RegExp(wrong, 'g'), correct)
+    }
+
+    return fixed
   }
 }

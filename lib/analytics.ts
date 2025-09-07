@@ -84,7 +84,7 @@ class PrivacyFocusedAnalytics {
   }
 
   private isDoNotTrackEnabled(): boolean {
-    if (typeof navigator === 'undefined') return false
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false
     return navigator.doNotTrack === '1' || 
            (navigator as any).msDoNotTrack === '1' ||
            (window as any).doNotTrack === '1'

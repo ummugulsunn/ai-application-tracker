@@ -1,9 +1,11 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { SessionProvider } from '@/components/providers/SessionProvider'
 import { PWAProvider } from '@/components/providers/PWAProvider'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { LanguageProvider } from '@/components/providers/LanguageProvider'
 import { ClientErrorBoundary } from '@/components/ClientErrorBoundary'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -13,13 +15,6 @@ export const metadata: Metadata = {
   description: 'AI-powered application tracking system for job seekers. Track your job applications, analyze success rates, and get insights with AI assistance.',
   keywords: 'job tracker, application tracker, career management, job search, AI assistant',
   manifest: '/manifest.json',
-  themeColor: '#3b82f6',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -36,6 +31,14 @@ export const metadata: Metadata = {
   },
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#3b82f6',
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -46,21 +49,25 @@ export default function RootLayout({
       <body className={inter.className}>
         <ClientErrorBoundary>
           <SessionProvider>
-            <PWAProvider>
-              <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-                {children}
-              </div>
-              <Toaster 
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#363636',
-                    color: '#fff',
-                  },
-                }}
-              />
-            </PWAProvider>
+            <ThemeProvider>
+              <LanguageProvider>
+                <PWAProvider>
+                  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
+                    {children}
+                  </div>
+                  <Toaster 
+                    position="top-right"
+                    toastOptions={{
+                      duration: 4000,
+                      style: {
+                        background: 'var(--toast-bg)',
+                        color: 'var(--toast-color)',
+                      },
+                    }}
+                  />
+                </PWAProvider>
+              </LanguageProvider>
+            </ThemeProvider>
           </SessionProvider>
         </ClientErrorBoundary>
       </body>

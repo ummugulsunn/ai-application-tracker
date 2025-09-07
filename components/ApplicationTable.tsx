@@ -23,6 +23,9 @@ import {
   conditionalAnimationClass
 } from '@/lib/utils/animationUtils'
 import { HydrationErrorBoundary, useHydrationErrorHandler } from './HydrationErrorBoundary'
+import { useLanguage } from '@/components/providers/LanguageProvider'
+import { useDashboardPreferences } from '@/lib/hooks/useUserPreferences'
+import EditApplicationModal from './EditApplicationModal'
 
 // Component for hydration-safe date display with progressive enhancement
 function DateDisplay({ date, showRelative = false }: { date: string | Date; showRelative?: boolean }) {
@@ -66,6 +69,10 @@ function ApplicationTableInternal() {
   // Hook for handling hydration errors within the component
   const { handleHydrationError } = useHydrationErrorHandler()
 
+  // Language and preferences
+  const { t } = useLanguage()
+  const dashboardPrefs = useDashboardPreferences()
+
   const applications = getFilteredApplications()
   const allIds = useMemo(() => applications.map(a => a.id), [applications])
   const isAllSelected = selectedIds.size > 0 && selectedIds.size === allIds.length
@@ -78,13 +85,13 @@ function ApplicationTableInternal() {
 
   const handleDelete = (id: string) => {
     try {
-      if (confirm('Are you sure you want to delete this application?')) {
+      if (confirm(t('message.confirmDelete'))) {
         deleteApplication(id)
-        toast.success('Application deleted successfully')
+        toast.success(t('message.success'))
       }
     } catch (error) {
       handleHydrationError(error as Error, 'ApplicationTable.handleDelete')
-      toast.error('Failed to delete application')
+      toast.error(t('message.error'))
     }
   }
 
@@ -260,7 +267,7 @@ function ApplicationTableInternal() {
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search applications..."
+              placeholder={t('applications.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="input-field pl-10 w-full"
@@ -470,6 +477,16 @@ function ApplicationTableInternal() {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditApplicationModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedApplication(null)
+        }}
+        application={selectedApplication}
+      />
     </div>
   )
 }

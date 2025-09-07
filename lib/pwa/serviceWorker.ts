@@ -9,36 +9,41 @@ export interface ServiceWorkerConfig {
   onError?: (error: Error) => void
 }
 
-const isLocalhost = Boolean(
-  window.location.hostname === 'localhost' ||
-  window.location.hostname === '[::1]' ||
-  window.location.hostname.match(
-    /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+const isLocalhost = () => {
+  if (typeof window === 'undefined') return false
+  return Boolean(
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '[::1]' ||
+    window.location.hostname.match(
+      /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+    )
   )
-)
+}
 
 export function registerServiceWorker(config?: ServiceWorkerConfig) {
-  if ('serviceWorker' in navigator) {
-    const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href)
-    if (publicUrl.origin !== window.location.origin) {
-      return
-    }
-
-    window.addEventListener('load', () => {
-      const swUrl = '/sw.js'
-
-      if (isLocalhost) {
-        checkValidServiceWorker(swUrl, config)
-        navigator.serviceWorker.ready.then(() => {
-          console.log(
-            'This web app is being served cache-first by a service worker.'
-          )
-        })
-      } else {
-        registerValidServiceWorker(swUrl, config)
-      }
-    })
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return
   }
+
+  const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href)
+  if (publicUrl.origin !== window.location.origin) {
+    return
+  }
+
+  window.addEventListener('load', () => {
+    const swUrl = '/sw.js'
+
+    if (isLocalhost()) {
+      checkValidServiceWorker(swUrl, config)
+      navigator.serviceWorker.ready.then(() => {
+        console.log(
+          'This web app is being served cache-first by a service worker.'
+        )
+      })
+    } else {
+      registerValidServiceWorker(swUrl, config)
+    }
+  })
 }
 
 function registerValidServiceWorker(swUrl: string, config?: ServiceWorkerConfig) {
@@ -102,15 +107,17 @@ function checkValidServiceWorker(swUrl: string, config?: ServiceWorkerConfig) {
 }
 
 export function unregisterServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready
-      .then((registration) => {
-        registration.unregister()
-      })
-      .catch((error) => {
-        console.error(error.message)
-      })
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return
   }
+
+  navigator.serviceWorker.ready
+    .then((registration) => {
+      registration.unregister()
+    })
+    .catch((error) => {
+      console.error(error.message)
+    })
 }
 
 // PWA installation prompt
@@ -120,6 +127,8 @@ export function usePWAInstall() {
   const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     // Check if already installed
     const checkInstalled = () => {
       if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -175,10 +184,12 @@ export function usePWAInstall() {
 
 // Network status detection
 export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true)
   const [connectionType, setConnectionType] = useState<string>('unknown')
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
 
@@ -222,7 +233,9 @@ export class OfflineActionQueue {
   }> = []
 
   constructor() {
-    this.loadQueue()
+    if (typeof window !== 'undefined') {
+      this.loadQueue()
+    }
   }
 
   addAction(action: string, data: any) {
@@ -243,7 +256,7 @@ export class OfflineActionQueue {
   }
 
   async syncQueue() {
-    if (!navigator.onLine || this.queue.length === 0) return
+    if (typeof window === 'undefined' || !navigator.onLine || this.queue.length === 0) return
 
     const itemsToSync = [...this.queue]
     
@@ -292,10 +305,14 @@ export class OfflineActionQueue {
   }
 
   private saveQueue() {
-    localStorage.setItem('offline-queue', JSON.stringify(this.queue))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('offline-queue', JSON.stringify(this.queue))
+    }
   }
 
   private loadQueue() {
+    if (typeof window === 'undefined') return
+    
     try {
       const saved = localStorage.getItem('offline-queue')
       if (saved) {

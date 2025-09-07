@@ -15,7 +15,7 @@ export class FieldDetector {
       ],
       weight: 1.0,
       required: true,
-      patterns: [/company/i, /firm/i, /corp/i, /inc/i, /ltd/i]
+      patterns: [/company/i, /firm/i, /corp/i, /inc/i, /ltd/i, /şirket/i, /firma/i]
     },
     position: {
       keywords: [
@@ -33,7 +33,7 @@ export class FieldDetector {
       ],
       weight: 0.8,
       required: false,
-      patterns: [/location/i, /city/i, /country/i, /address/i, /where/i]
+      patterns: [/location/i, /city/i, /country/i, /address/i, /where/i, /ülke/i, /şehir/i]
     },
     status: {
       keywords: [
@@ -47,11 +47,12 @@ export class FieldDetector {
     appliedDate: {
       keywords: [
         'applied date', 'başvuru tarihi', 'date applied', 'application date', 
-        'applied', 'tarih', 'submit date', 'submission date', 'apply date'
+        'applied', 'tarih', 'submit date', 'submission date', 'apply date',
+        'e-posta tarihi', 'email tarihi', 'gönderim tarihi'
       ],
       weight: 0.8,
       required: false,
-      patterns: [/applied.*date/i, /date.*applied/i, /application.*date/i, /submit.*date/i]
+      patterns: [/applied.*date/i, /date.*applied/i, /application.*date/i, /submit.*date/i, /e-posta.*tarihi/i, /email.*tarihi/i]
     },
     responseDate: {
       keywords: [
@@ -83,11 +84,12 @@ export class FieldDetector {
     contactEmail: {
       keywords: [
         'contact email', 'email', 'e-mail', 'contact', 'iletişim', 
-        'email address', 'mail', 'recruiter email', 'hr email'
+        'email address', 'mail', 'recruiter email', 'hr email',
+        'iletişim bilgisi', 'contact info', 'e-posta'
       ],
       weight: 0.7,
       required: false,
-      patterns: [/email/i, /mail/i, /contact.*email/i, /@/]
+      patterns: [/email/i, /mail/i, /contact.*email/i, /@/, /iletişim.*bilgisi/i, /e-posta/i]
     },
     contactPerson: {
       keywords: [
@@ -110,11 +112,12 @@ export class FieldDetector {
     tags: {
       keywords: [
         'tags', 'etiketler', 'sector', 'sektör', 'category', 'kategori', 
-        'skills', 'yetenekler', 'technologies', 'keywords', 'labels'
+        'skills', 'yetenekler', 'technologies', 'keywords', 'labels',
+        'industry', 'endüstri', 'field', 'alan'
       ],
       weight: 0.6,
       required: false,
-      patterns: [/tags/i, /skills/i, /tech/i, /category/i, /keywords/i]
+      patterns: [/tags/i, /skills/i, /tech/i, /category/i, /keywords/i, /sektör/i, /sector/i, /industry/i]
     },
     salary: {
       keywords: [
@@ -149,6 +152,9 @@ export class FieldDetector {
    * Detect column mappings with enhanced algorithms and template-based auto-mapping
    */
   static detectColumns(csvColumns: string[], sampleData?: any[]): ColumnDetectionResult {
+    // Normalize column names for better matching
+    const normalizedColumns = csvColumns.map(col => this.normalizeColumnName(col))
+    
     // First, try template-based detection for higher accuracy
     const templateDetection = CSVTemplateSystem.detectTemplate(csvColumns)
     
@@ -286,8 +292,15 @@ export class FieldDetector {
     config: typeof this.FIELD_MAPPINGS[keyof typeof this.FIELD_MAPPINGS],
     sampleData?: any[]
   ): number {
-    const columnLower = csvColumn.toLowerCase().trim()
+    const normalizedColumn = this.normalizeColumnName(csvColumn)
+    const columnLower = normalizedColumn.toLowerCase().trim()
     let score = 0
+
+    // 0. Turkish-specific matching (highest priority)
+    const turkishScore = this.enhancedFieldMatch(csvColumn, config)
+    if (turkishScore > 0) {
+      score += turkishScore * config.weight
+    }
 
     // 1. Exact keyword matching (highest weight)
     const exactMatch = config.keywords.find(keyword => 
@@ -317,7 +330,7 @@ export class FieldDetector {
 
     // 4. Pattern matching
     if (config.patterns) {
-      const patternMatches = config.patterns.filter(pattern => pattern.test(csvColumn))
+      const patternMatches = config.patterns.filter(pattern => pattern.test(normalizedColumn))
       if (patternMatches.length > 0) {
         score += (0.3 * patternMatches.length / config.patterns.length) * config.weight
       }
@@ -458,13 +471,74 @@ export class FieldDetector {
   }
 
   /**
+   * Normalize column name for better matching (handle encoding issues)
+   */
+  private static normalizeColumnName(columnName: string): string {
+    // Handle common encoding issues
+    let normalized = columnName
+      .replace(/Ã¼/g, 'ü')
+      .replace(/Ã¶/g, 'ö')
+      .replace(/Ã§/g, 'ç')
+      .replace(/Ä±/g, 'ı')
+      .replace(/Ä°/g, 'İ')
+      .replace(/Åž/g, 'ş')
+      .replace(/Å/g, 'ğ')
+      .replace(/Ã/g, 'Ü')
+      .replace(/Ã/g, 'Ö')
+      .replace(/Ã/g, 'Ç')
+      .replace(/Åž/g, 'Ş')
+      .replace(/Ä/g, 'Ğ')
+    
+    return normalized.trim()
+  }
+
+  /**
+   * Enhanced field matching with Turkish character support
+   */
+  private static enhancedFieldMatch(csvColumn: string, fieldConfig: any): number {
+    const normalizedColumn = this.normalizeColumnName(csvColumn).toLowerCase()
+    
+    // Direct Turkish mappings
+    const turkishMappings: Record<string, string[]> = {
+      company: ['şirket adı', 'şirket', 'firma', 'kurum'],
+      position: ['pozisyon', 'görev', 'iş', 'meslek', 'staj'],
+      location: ['ülke', 'konum', 'yer', 'şehir', 'lokasyon'],
+      status: ['durum', 'statü', 'hal'],
+      appliedDate: ['e-posta tarihi', 'başvuru tarihi', 'tarih', 'gönderim tarihi'],
+      responseDate: ['cevap tarihi', 'yanıt tarihi', 'dönüş tarihi'],
+      contactEmail: ['iletişim bilgisi', 'e-posta', 'email', 'iletişim'],
+      notes: ['notlar', 'açıklama', 'yorum'],
+      tags: ['sektör', 'alan', 'kategori', 'etiket']
+    }
+    
+    const fieldKey = Object.keys(this.FIELD_MAPPINGS).find(key => 
+      this.FIELD_MAPPINGS[key as keyof typeof this.FIELD_MAPPINGS] === fieldConfig
+    )
+    
+    if (fieldKey && turkishMappings[fieldKey]) {
+      for (const turkishTerm of turkishMappings[fieldKey]) {
+        if (normalizedColumn.includes(turkishTerm) || turkishTerm.includes(normalizedColumn)) {
+          return 0.9 // High confidence for Turkish matches
+        }
+      }
+    }
+    
+    return 0
+  }
+
+  /**
    * Get field suggestions for manual mapping
    */
   static getFieldSuggestions(csvColumn: string): Array<{ field: keyof Application; confidence: number }> {
     const suggestions: Array<{ field: keyof Application; confidence: number }> = []
 
     Object.entries(this.FIELD_MAPPINGS).forEach(([field, config]) => {
-      const score = this.calculateFieldScore(csvColumn, config)
+      let score = this.calculateFieldScore(csvColumn, config)
+      
+      // Add Turkish-specific matching
+      const turkishScore = this.enhancedFieldMatch(csvColumn, config)
+      score = Math.max(score, turkishScore)
+      
       if (score > 0.2) {
         suggestions.push({ 
           field: field as keyof Application, 

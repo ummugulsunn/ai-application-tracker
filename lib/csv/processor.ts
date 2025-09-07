@@ -11,6 +11,7 @@ import { EncodingDetector } from './encoding-detector'
 import { FieldDetector } from './field-detector'
 import { CSVDataValidator } from './data-validator'
 import { DuplicateDetector, DuplicateGroup, DuplicateResolution } from './duplicate-detector'
+import { SmartCSVFixer } from './smart-fixer'
 
 /**
  * Enhanced CSV processor with intelligent parsing and validation
@@ -166,18 +167,25 @@ export class CSVProcessor {
     cleanedData: any[];
     duplicateGroups: DuplicateGroup[];
     validationSummary: any;
+    autoFixes?: string[];
   } {
-    // Use the enhanced validator
-    const validationResult = CSVDataValidator.validateDataset(data, mapping)
+    // Step 1: Pre-process data
+    const preprocessedData = SmartCSVFixer.preprocessData(data)
     
-    // Detect duplicates
+    // Step 2: Apply smart fixes
+    const { fixedData, fixes } = SmartCSVFixer.autoFixData(preprocessedData, mapping)
+    
+    // Step 3: Use the enhanced validator on fixed data
+    const validationResult = CSVDataValidator.validateDataset(fixedData, mapping)
+    
+    // Step 4: Detect duplicates
     const duplicateGroups = DuplicateDetector.detectDuplicates(
       validationResult.cleanedData, 
       mapping, 
       existingApplications
     )
 
-    // Generate validation summary
+    // Step 5: Generate validation summary
     const validationSummary = CSVDataValidator.generateValidationSummary(
       validationResult.errors,
       validationResult.warnings
@@ -188,7 +196,8 @@ export class CSVProcessor {
       warnings: validationResult.warnings,
       cleanedData: validationResult.cleanedData,
       duplicateGroups,
-      validationSummary
+      validationSummary,
+      autoFixes: fixes
     }
   }
 
@@ -301,12 +310,25 @@ export class CSVProcessor {
 
     const normalizeStatus = (status: string): Application['status'] => {
       const statusLower = status.toLowerCase()
+      
+      // English status mappings
       if (statusLower.includes('applied')) return 'Applied'
       if (statusLower.includes('interview')) return 'Interviewing'
       if (statusLower.includes('offer')) return 'Offered'
       if (statusLower.includes('reject')) return 'Rejected'
       if (statusLower.includes('accept')) return 'Accepted'
       if (statusLower.includes('withdraw')) return 'Withdrawn'
+      
+      // Turkish status mappings
+      if (statusLower.includes('başvuru yapıldı') || statusLower.includes('başvuruldu')) return 'Applied'
+      if (statusLower.includes('mülakat') || statusLower.includes('görüşme')) return 'Interviewing'
+      if (statusLower.includes('teklif') || statusLower.includes('kabul edildi')) return 'Offered'
+      if (statusLower.includes('reddedildi') || statusLower.includes('red')) return 'Rejected'
+      if (statusLower.includes('kabul ettim') || statusLower.includes('onayladım')) return 'Accepted'
+      if (statusLower.includes('geri çektim') || statusLower.includes('iptal')) return 'Withdrawn'
+      if (statusLower.includes('cevap bekleniyor') || statusLower.includes('beklemede')) return 'Pending'
+      if (statusLower.includes('başvuru planlanıyor') || statusLower.includes('planlanan')) return 'Pending'
+      
       return 'Pending'
     }
 
@@ -332,11 +354,14 @@ export class CSVProcessor {
       throw new Error('Company field is required')
     }
 
+    // Generate default position based on sector/tags if not provided
+    const position = getMappedField('position') || this.generateDefaultPosition(getMappedField('tags') || getMappedField('sektör') || '')
+
     // Create Application object
     const app: Application = {
       id: `imported-${Date.now()}-${Math.random().toString(36).substring(2, 9)}-${index}`,
       company,
-      position: getMappedField('position') || 'Not Specified',
+      position,
       location: getMappedField('location'),
       type: normalizeJobType(getMappedField('type') || 'Full-time'),
       salary: getMappedField('salary'),
@@ -487,6 +512,51 @@ export class CSVProcessor {
       errors: validationResult.errors,
       warnings: validationResult.warnings
     }
+  }
+
+  /**
+   * Generate default position based on sector/tags
+   */
+  private static generateDefaultPosition(sectorOrTags: string): string {
+    const sector = sectorOrTags.toLowerCase()
+    
+    // Technology sectors
+    if (sector.includes('technology') || sector.includes('tech') || sector.includes('software')) {
+      return 'Software Developer Intern'
+    }
+    if (sector.includes('fintech') || sector.includes('finance')) {
+      return 'Finance Intern'
+    }
+    if (sector.includes('music') || sector.includes('media')) {
+      return 'Media Intern'
+    }
+    if (sector.includes('telecommunications') || sector.includes('telecom')) {
+      return 'Engineering Intern'
+    }
+    if (sector.includes('automotive') || sector.includes('engineering')) {
+      return 'Engineering Intern'
+    }
+    if (sector.includes('retail') || sector.includes('design')) {
+      return 'Design Intern'
+    }
+    if (sector.includes('gaming') || sector.includes('game')) {
+      return 'Game Developer Intern'
+    }
+    if (sector.includes('energy') || sector.includes('renewable')) {
+      return 'Energy Intern'
+    }
+    if (sector.includes('maritime') || sector.includes('logistics')) {
+      return 'Logistics Intern'
+    }
+    if (sector.includes('pharmaceuticals') || sector.includes('medical')) {
+      return 'Medical Intern'
+    }
+    if (sector.includes('cybersecurity') || sector.includes('security')) {
+      return 'Security Intern'
+    }
+    
+    // Default fallback
+    return 'Intern'
   }
 
   /**
