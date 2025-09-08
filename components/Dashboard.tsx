@@ -20,6 +20,7 @@ import { HydrationErrorBoundary, useHydrationErrorHandler } from './HydrationErr
 import { GuestModeBanner } from './auth/GuestModeBanner'
 import { AuthModal } from './auth/AuthModal'
 import AIInsightsDashboard from './ai/AIInsightsDashboard'
+import { RemindersWidget } from './reminders/RemindersWidget'
 
 interface DashboardProps {
   onAddNew: () => void
@@ -187,10 +188,10 @@ function DashboardInternal({ onAddNew, onImport, onExport, onViewAnalytics, onMa
         </Grid>
       </section>
 
-      {/* Status Breakdown and Top Insights */}
+      {/* Status Breakdown, Top Insights, and Reminders */}
       <section aria-labelledby="insights-heading">
         <h2 id="insights-heading" className="sr-only">Application Insights</h2>
-        <Grid cols={2} gap={6}>
+        <Grid cols={3} gap={6}>
           {/* Status Breakdown */}
           <AccessibleMotion
             initial={{ opacity: 0, x: -20 }}
@@ -305,6 +306,15 @@ function DashboardInternal({ onAddNew, onImport, onExport, onViewAnalytics, onMa
               </CardContent>
             </Card>
           </AccessibleMotion>
+
+          {/* Reminders Widget */}
+          <AccessibleMotion
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <RemindersWidget data-tour="reminders-widget" />
+          </AccessibleMotion>
         </Grid>
       </section>
 
@@ -347,7 +357,7 @@ function DashboardInternal({ onAddNew, onImport, onExport, onViewAnalytics, onMa
               )}
               {onViewAnalytics && (
                 <Button onClick={onViewAnalytics} variant="secondary">
-                  View Analytics
+                  View Advanced Analytics
                 </Button>
               )}
               {onManageDuplicates && applications.length > 1 && (

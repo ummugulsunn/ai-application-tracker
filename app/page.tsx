@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Dashboard from '@/components/Dashboard'
 import ApplicationTable from '@/components/ApplicationTable'
@@ -21,6 +22,7 @@ import { initializeAuthState } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 
 export default function Home() {
+  const router = useRouter()
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
@@ -91,6 +93,10 @@ export default function Home() {
     }
   }
 
+  const handleViewAnalytics = () => {
+    router.push('/analytics')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header 
@@ -134,6 +140,7 @@ export default function Home() {
             onAddNew={handleAddApplication}
             onImport={() => setIsImportModalOpen(true)}
             onExport={() => setIsExportModalOpen(true)}
+            onViewAnalytics={handleViewAnalytics}
             onManageDuplicates={() => setIsBulkDuplicateManagerOpen(true)}
             onManageBackups={() => setIsBackupManagerOpen(true)}
           />
