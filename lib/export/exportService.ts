@@ -7,13 +7,14 @@ import { Application, ApplicationStats } from '@/types/application'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
 import * as XLSX from 'xlsx'
+import type { JSONValue, JSONObject, ExportData, PDFDrawPageData } from '@/types/strict'
 
 export interface ExportField {
   key: keyof Application | 'customField'
   label: string
   selected: boolean
   type: 'string' | 'date' | 'number' | 'array' | 'object'
-  formatter?: (value: any) => string
+  formatter?: (value: JSONValue) => string
 }
 
 export interface ExportOptions {
@@ -59,9 +60,9 @@ export class ExportService {
     { key: 'notes', label: 'Notes', selected: false, type: 'string' },
     { key: 'jobDescription', label: 'Job Description', selected: false, type: 'string' },
     { key: 'requirements', label: 'Requirements', selected: false, type: 'array', 
-      formatter: (value: string[]) => value?.join('; ') || '' },
+      formatter: (value: JSONValue) => Array.isArray(value) ? value.join('; ') : '' },
     { key: 'tags', label: 'Tags', selected: false, type: 'array',
-      formatter: (value: string[]) => value?.join('; ') || '' },
+      formatter: (value: JSONValue) => Array.isArray(value) ? value.join('; ') : '' },
     { key: 'aiMatchScore', label: 'AI Match Score', selected: false, type: 'number' },
     { key: 'createdAt', label: 'Created At', selected: false, type: 'date' },
     { key: 'updatedAt', label: 'Updated At', selected: false, type: 'date' }
@@ -274,9 +275,9 @@ export class ExportService {
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [66, 139, 202] },
       columnStyles: this.getPDFColumnStyles(fields),
-      didDrawPage: (data: any) => {
+      didDrawPage: (data: PDFDrawPageData) => {
         // Add page numbers
-        const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber
+        const pageNumber = (doc as jsPDF & { internal: { getCurrentPageInfo(): { pageNumber: number } } }).internal.getCurrentPageInfo().pageNumber
         doc.setFontSize(10)
         doc.text(
           `Page ${pageNumber}`,
@@ -302,14 +303,14 @@ export class ExportService {
     options: ExportOptions,
     stats?: ApplicationStats
   ): ExportResult {
-    const exportData: any = {
+    const exportData: ExportData = {
       exportDate: new Date().toISOString(),
       totalRecords: applications.length,
       fields: fields.map(f => ({ key: f.key, label: f.label })),
       applications: applications.map(app => {
-        const exportApp: any = {}
+        const exportApp: JSONObject = {}
         fields.forEach(field => {
-          exportApp[field.key] = app[field.key as keyof Application]
+          exportApp[field.key] = app[field.key as keyof Application] as JSONValue
         })
         return exportApp
       })
@@ -320,7 +321,7 @@ export class ExportService {
     }
 
     if (options.includeAIInsights) {
-      exportData.applications = exportData.applications.map((app: any, index: number) => ({
+      exportData.applications = exportData.applications.map((app: JSONObject, index: number) => ({
         ...app,
         aiInsights: applications[index]?.aiInsights
       }))

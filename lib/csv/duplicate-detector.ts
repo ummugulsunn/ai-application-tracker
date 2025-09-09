@@ -13,7 +13,7 @@ export interface DuplicateGroup {
   id: string
   applications: Array<{
     index: number
-    data: any
+    data: Record<string, unknown>
     isExisting?: boolean
   }>
   confidence: number
@@ -25,7 +25,7 @@ export interface DuplicateResolution {
   action: 'merge' | 'skip' | 'update' | 'keep_both'
   primaryIndex: number
   secondaryIndex: number
-  mergedData?: any
+  mergedData?: Record<string, unknown>
 }
 
 /**
@@ -39,7 +39,7 @@ export class DuplicateDetector {
    * Detect duplicates within CSV data
    */
   static detectDuplicates(
-    data: any[],
+    data: Record<string, unknown>[],
     mapping: Record<string, string>,
     existingApplications?: Application[]
   ): DuplicateGroup[] {
@@ -104,8 +104,8 @@ export class DuplicateDetector {
    * Calculate similarity between two applications
    */
   private static calculateSimilarity(
-    app1: any,
-    app2: any,
+    app1: Record<string, unknown>,
+    app2: Record<string, unknown>,
     mapping: Record<string, string>
   ): { confidence: number; reasons: string[] } {
     const reasons: string[] = []
@@ -215,7 +215,7 @@ export class DuplicateDetector {
   /**
    * Get field value from row data
    */
-  private static getFieldValue(rowData: any, fieldName?: string): string {
+  private static getFieldValue(rowData: Record<string, unknown>, fieldName?: string): string {
     if (!fieldName || !rowData) return ''
     return String(rowData[fieldName] || '').trim()
   }
@@ -223,8 +223,8 @@ export class DuplicateDetector {
   /**
    * Convert Application to row data format
    */
-  private static applicationToRowData(app: Application, mapping: Record<string, string>): any {
-    const rowData: any = {}
+  private static applicationToRowData(app: Application, mapping: Record<string, string>): Record<string, unknown> {
+    const rowData: Record<string, unknown> = {}
     
     Object.entries(mapping).forEach(([appField, csvColumn]) => {
       const value = (app as any)[appField]
@@ -256,9 +256,9 @@ export class DuplicateDetector {
    * Generate merge preview for duplicate applications
    */
   static generateMergePreview(
-    applications: Array<{ index: number; data: any; isExisting?: boolean }>,
+    applications: Array<{ index: number; data: Record<string, unknown>; isExisting?: boolean }>,
     mapping: Record<string, string>
-  ): any {
+  ): Record<string, unknown> {
     if (applications.length < 2) return applications[0]?.data
 
     const merged = { ...applications[0]!.data }
@@ -323,9 +323,9 @@ export class DuplicateDetector {
    * Apply duplicate resolutions to dataset
    */
   static applyResolutions(
-    data: any[],
+    data: Record<string, unknown>[],
     resolutions: DuplicateResolution[]
-  ): { processedData: any[]; summary: { merged: number; skipped: number; updated: number } } {
+  ): { processedData: Record<string, unknown>[]; summary: { merged: number; skipped: number; updated: number } } {
     const processedData = [...data]
     const toRemove = new Set<number>()
     const summary = { merged: 0, skipped: 0, updated: 0 }

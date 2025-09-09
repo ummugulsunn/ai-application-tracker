@@ -1,0 +1,5 @@
+export { ContactsManager } from './ContactsManager'
+export { ContactsList } from './ContactsList'
+export { ContactForm } from './ContactForm'
+export { ContactStats } from './ContactStats'
+export { ContactFilters } from './ContactFilters'

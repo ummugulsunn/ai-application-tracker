@@ -216,7 +216,7 @@ export const createMockFileList = (files: File[]): FileList => {
 }
 
 // API mocking utilities
-export const mockFetch = (response: any, delay: number = 0) => {
+export const mockFetch = (response: unknown, delay: number = 0) => {
   global.fetch = jest.fn().mockImplementation(() =>
     new Promise(resolve => {
       setTimeout(() => {

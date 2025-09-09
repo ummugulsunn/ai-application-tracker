@@ -5,13 +5,14 @@ import { prisma } from '@/lib/prisma'
 import { ReminderService } from '@/lib/reminders/reminderService'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // POST /api/applications/[id]/reminders - Create automatic reminders for an application
 export async function POST(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions)
     
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Get the application
     const application = await prisma.application.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })

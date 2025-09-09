@@ -11,8 +11,9 @@ const updateStatusSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -21,7 +22,7 @@ export async function GET(
 
     const recommendation = await prisma.jobRecommendation.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     });
@@ -35,7 +36,7 @@ export async function GET(
 
     // Mark as viewed if it's new
     if (recommendation.status === 'new') {
-      await jobRecommendationService.updateRecommendationStatus(params.id, 'viewed');
+      await jobRecommendationService.updateRecommendationStatus(id, 'viewed');
       recommendation.status = 'viewed';
     }
 
@@ -55,8 +56,9 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -69,7 +71,7 @@ export async function PATCH(
     // Verify the recommendation belongs to the user
     const existingRecommendation = await prisma.jobRecommendation.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     });
@@ -82,7 +84,7 @@ export async function PATCH(
     }
 
     const updatedRecommendation = await jobRecommendationService.updateRecommendationStatus(
-      params.id,
+      id,
       validatedBody.status
     );
 
@@ -112,8 +114,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -123,7 +126,7 @@ export async function DELETE(
     // Verify the recommendation belongs to the user
     const existingRecommendation = await prisma.jobRecommendation.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     });
@@ -135,7 +138,7 @@ export async function DELETE(
       }, { status: 404 });
     }
 
-    await jobRecommendationService.deleteRecommendation(params.id);
+    await jobRecommendationService.deleteRecommendation(id);
 
     return NextResponse.json({
       success: true,

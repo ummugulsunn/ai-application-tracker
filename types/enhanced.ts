@@ -349,3 +349,56 @@ export const createISODateString = (value: string): ISODateString => {
   }
   return value as ISODateString
 }
+
+// Interview Preparation Types
+export interface InterviewQuestion {
+  question: string
+  category: 'behavioral' | 'technical' | 'situational' | 'company-specific' | 'general'
+  suggestedAnswer: string
+  tips: string[]
+  difficulty?: 'easy' | 'medium' | 'hard'
+}
+
+export interface CompanyResearch {
+  keyPoints: string[]
+  questionsToAsk: string[]
+  recentNews: string[]
+  culture: string[]
+  values: string[]
+  competitors?: string[]
+}
+
+export interface SalaryNegotiation {
+  marketRange: string
+  negotiationTips: string[]
+  timing: string
+  factors: string[]
+}
+
+export interface InterviewPreparation {
+  commonQuestions: InterviewQuestion[]
+  companyResearch: CompanyResearch
+  skillsToHighlight: string[]
+  weaknessesToAddress: string[]
+  salaryNegotiation: SalaryNegotiation
+  preparationTimeline: {
+    oneWeekBefore: string[]
+    threeDaysBefore: string[]
+    oneDayBefore: string[]
+    dayOf: string[]
+  }
+  followUpStrategy: {
+    thankYouEmail: string
+    followUpTimeline: string[]
+    nextSteps: string[]
+  }
+}
+
+export interface InterviewPrepRequest {
+  jobDescription: string
+  companyName: string
+  applicationId?: string
+  interviewType?: 'phone' | 'video' | 'in-person' | 'panel' | 'technical'
+  interviewDate?: Date
+  userResume?: string
+}

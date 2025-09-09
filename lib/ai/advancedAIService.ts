@@ -2,6 +2,15 @@ import OpenAI from 'openai';
 import { Application } from '@/types/application';
 import { aiService } from '@/lib/ai';
 
+export interface UserProfile {
+  name?: string;
+  skills?: string[];
+  experience?: string;
+  achievements?: string[];
+  education?: string;
+  certifications?: string[];
+}
+
 // Initialize OpenAI client
 let openai: OpenAI | null = null;
 
@@ -288,7 +297,7 @@ export class AdvancedAIService {
   async generateInterviewPreparation(
     jobDescription: string,
     companyName: string,
-    userProfile: any,
+    userProfile: UserProfile,
     applications: Application[]
   ): Promise<InterviewPreparation> {
     if (!openai) {
@@ -354,7 +363,7 @@ export class AdvancedAIService {
    * Analyze career path and provide recommendations
    */
   async analyzeCareerPath(
-    userProfile: any,
+    userProfile: UserProfile,
     applications: Application[],
     targetRole?: string
   ): Promise<CareerPathAnalysis> {
@@ -533,7 +542,7 @@ Provide actionable feedback to improve the cover letter's impact.
 `;
   }
 
-  private buildInterviewPrepPrompt(jobDescription: string, companyName: string, userProfile: any, applications: Application[]): string {
+  private buildInterviewPrepPrompt(jobDescription: string, companyName: string, userProfile: UserProfile, applications: Application[]): string {
     const successfulApps = applications.filter(app => ['Interviewing', 'Offered', 'Accepted'].includes(app.status));
     
     return `
@@ -546,8 +555,8 @@ Company: ${companyName}
 
 Candidate Profile:
 - Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
-- Experience Level: ${userProfile.experienceLevel || 'Not specified'}
-- Industries: ${userProfile.industries?.join(', ') || 'Not specified'}
+- Experience Level: ${userProfile.experience || 'Not specified'}
+- Education: ${userProfile.education || 'Not specified'}
 
 Application History:
 - Total Applications: ${applications.length}
@@ -565,14 +574,14 @@ Tailor everything to this specific role and company.
 `;
   }
 
-  private buildCareerPathPrompt(userProfile: any, applications: Application[], targetRole?: string): string {
+  private buildCareerPathPrompt(userProfile: UserProfile, applications: Application[], targetRole?: string): string {
     return `
 Analyze career path and provide strategic guidance for:
 
 Current Profile:
 - Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
-- Experience Level: ${userProfile.experienceLevel || 'Not specified'}
-- Industries: ${userProfile.industries?.join(', ') || 'Not specified'}
+- Experience Level: ${userProfile.experience || 'Not specified'}
+- Education: ${userProfile.education || 'Not specified'}
 - Current Applications: ${applications.map(app => app.position).slice(0, 10).join(', ')}
 
 ${targetRole ? `Target Role: ${targetRole}` : ''}

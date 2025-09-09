@@ -113,8 +113,8 @@ async function generateExportData(
   }
 }
 
-function generateJSONExport(analytics: any, sections: string[], includeCharts: boolean) {
-  const exportData: any = {
+function generateJSONExport(analytics: Record<string, unknown>, sections: string[], includeCharts: boolean) {
+  const exportData: Record<string, unknown> = {
     metadata: {
       exportDate: new Date().toISOString(),
       format: 'json',
@@ -146,7 +146,7 @@ function generateJSONExport(analytics: any, sections: string[], includeCharts: b
   }
 }
 
-function generateCSVExport(analytics: any, sections: string[], applications: any[]) {
+function generateCSVExport(analytics: Record<string, unknown>, sections: string[], applications: Record<string, unknown>[]) {
   let csvContent = ''
 
   // Add metadata header
@@ -222,7 +222,7 @@ function generateCSVExport(analytics: any, sections: string[], applications: any
   }
 }
 
-function generatePDFExport(analytics: any, sections: string[], includeCharts: boolean, applications: any[]) {
+function generatePDFExport(analytics: Record<string, unknown>, sections: string[], includeCharts: boolean, applications: Record<string, unknown>[]) {
   // For now, return HTML that can be converted to PDF
   // In a real implementation, you would use a library like Puppeteer or jsPDF
   
@@ -426,7 +426,7 @@ function generatePDFExport(analytics: any, sections: string[], includeCharts: bo
   }
 }
 
-function generateComprehensiveAnalytics(applications: any[]) {
+function generateComprehensiveAnalytics(applications: Record<string, unknown>[]) {
   // This is a simplified version - in a real app, you'd call the dashboard analytics function
   const totalApplications = applications.length
   const interviewCount = applications.filter(app => 

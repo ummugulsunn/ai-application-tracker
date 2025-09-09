@@ -5,13 +5,14 @@ import { prisma } from '@/lib/prisma'
 import { reminderSchema } from '@/lib/validations'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // GET /api/reminders/[id] - Get a specific reminder
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions)
     
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const reminder = await prisma.reminder.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       },
       include: {
@@ -75,6 +76,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 // PUT /api/reminders/[id] - Update a reminder
 export async function PUT(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions)
     
@@ -110,7 +112,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Check if reminder exists and belongs to user
     const existingReminder = await prisma.reminder.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -128,7 +130,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     
     if (validationResult.data.applicationId !== undefined) {
       updateData.applicationId = validationResult.data.applicationId
@@ -150,7 +152,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const updatedReminder = await prisma.reminder.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       include: {
         application: {
@@ -186,7 +188,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/reminders/[id] - Delete a reminder
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions)
     
@@ -200,7 +203,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Check if reminder exists and belongs to user
     const existingReminder = await prisma.reminder.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -219,7 +222,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     await prisma.reminder.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     return NextResponse.json({

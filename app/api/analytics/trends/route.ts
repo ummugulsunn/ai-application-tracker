@@ -120,7 +120,7 @@ function generateTimeSeriesData(applications: any[], granularity: string, metric
 
   applications.forEach(app => {
     const date = new Date(app.appliedDate)
-    let key: string
+    let key: string = date.toISOString().split('T')[0] // default value
 
     switch (granularity) {
       case 'day':
@@ -246,7 +246,7 @@ function calculateCorrelation(values: number[]) {
   const meanY = values.reduce((sum, val) => sum + val, 0) / n
 
   const numerator = indices.reduce((sum, x, i) => {
-    return sum + (x - meanX) * (values[i] - meanY)
+    return sum + (x - meanX) * ((values[i] ?? 0) - meanY)
   }, 0)
 
   const denominatorX = Math.sqrt(indices.reduce((sum, x) => sum + Math.pow(x - meanX, 2), 0))
@@ -377,26 +377,30 @@ function calculateSeasonalPatterns(applications: any[]) {
     const dayOfWeek = date.getDay()
 
     // Monthly patterns
-    monthlyData[month].applications++
-    if (['Interviewing', 'Offered', 'Accepted'].includes(app.status)) {
-      monthlyData[month].interviews++
-    }
-    if (['Offered', 'Accepted'].includes(app.status)) {
-      monthlyData[month].offers++
-    }
+    if (monthlyData[month]) {
+      monthlyData[month].applications++
+      if (['Interviewing', 'Offered', 'Accepted'].includes(app.status as string)) {
+        monthlyData[month].interviews++
+      }
+      if (['Offered', 'Accepted'].includes(app.status as string)) {
+        monthlyData[month].offers++
+      }
 
-    if (app.responseDate) {
-      const responseTime = Math.ceil((new Date(app.responseDate).getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-      monthlyData[month].responseTimes.push(responseTime)
+      if (app.responseDate) {
+        const responseTime = Math.ceil((new Date(app.responseDate as string).getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+        monthlyData[month].responseTimes.push(responseTime)
+      }
     }
 
     // Weekly patterns
-    weeklyData[dayOfWeek].applications++
-    if (['Interviewing', 'Offered', 'Accepted'].includes(app.status)) {
-      weeklyData[dayOfWeek].interviews++
-    }
-    if (['Offered', 'Accepted'].includes(app.status)) {
-      weeklyData[dayOfWeek].offers++
+    if (weeklyData[dayOfWeek]) {
+      weeklyData[dayOfWeek].applications++
+      if (['Interviewing', 'Offered', 'Accepted'].includes(app.status as string)) {
+        weeklyData[dayOfWeek].interviews++
+      }
+      if (['Offered', 'Accepted'].includes(app.status as string)) {
+        weeklyData[dayOfWeek].offers++
+      }
     }
   })
 
@@ -405,7 +409,9 @@ function calculateSeasonalPatterns(applications: any[]) {
     month.avgResponseTime = month.responseTimes.length > 0
       ? month.responseTimes.reduce((sum: number, time: number) => sum + time, 0) / month.responseTimes.length
       : 0
-    delete month.responseTimes
+    // Remove responseTimes from the final output
+    const { responseTimes, ...monthWithoutResponseTimes } = month
+    Object.assign(month, monthWithoutResponseTimes)
   })
 
   return {
@@ -487,11 +493,11 @@ function generateForecastingData(timeSeriesData: any[], metrics: string[]) {
   return forecasts
 }
 
-function generateTrendSummary(trendIndicators: any, comparativeAnalysis: any) {
+function generateTrendSummary(trendIndicators: Record<string, unknown>, comparativeAnalysis: Record<string, unknown>) {
   const summary = {
     overallTrend: 'stable',
-    keyInsights: [],
-    recommendations: []
+    keyInsights: [] as string[],
+    recommendations: [] as string[]
   }
 
   // Determine overall trend

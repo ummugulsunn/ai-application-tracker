@@ -23,6 +23,13 @@ const generateCoverLetterSchema = z.object({
   length: z.enum(['short', 'medium', 'long']).default('medium'),
 });
 
+type UserProfile = {
+  name?: string;
+  skills?: string[];
+  experience?: string;
+  achievements?: string[];
+};
+
 interface CoverLetterGeneration {
   coverLetter: string;
   keyPoints: string[];
@@ -111,7 +118,7 @@ async function generateCoverLetterWithAI(
   jobDescription: string,
   companyName: string,
   position: string,
-  userProfile: any,
+  userProfile: UserProfile | undefined,
   tone: string,
   length: string
 ): Promise<CoverLetterGeneration> {
@@ -154,7 +161,7 @@ function buildCoverLetterGenerationPrompt(
   jobDescription: string,
   companyName: string,
   position: string,
-  userProfile: any,
+  userProfile: UserProfile | undefined,
   tone: string,
   length: string
 ): string {

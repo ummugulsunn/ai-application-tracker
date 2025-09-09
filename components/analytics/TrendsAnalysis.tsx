@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { 
-  TrendingUpIcon, 
-  TrendingDownIcon,
+  ArrowTrendingUpIcon as TrendingUpIcon, 
+  ArrowTrendingDownIcon as TrendingDownIcon,
   MinusIcon,
   CalendarIcon,
   ChartBarIcon
@@ -25,7 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { HelpTooltip } from '../ui/HelpTooltip'
-import { LoadingStates } from '../ui/LoadingStates'
+import { PageLoading } from '../ui/LoadingStates'
 import { AccessibleMotion } from '../ui/AccessibilityWrapper'
 import { Application } from '@/types/application'
 

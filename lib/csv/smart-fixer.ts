@@ -9,10 +9,10 @@ export class SmartCSVFixer {
    * Auto-fix common CSV issues
    */
   static autoFixData(
-    data: any[], 
+    data: Record<string, unknown>[], 
     mapping: Record<string, string>
-  ): { fixedData: any[]; fixes: string[] } {
-    const fixedData: any[] = []
+  ): { fixedData: Record<string, unknown>[]; fixes: string[] } {
+    const fixedData: Record<string, unknown>[] = []
     const fixes: string[] = []
 
     data.forEach((row, index) => {
@@ -75,7 +75,7 @@ export class SmartCSVFixer {
   /**
    * Check if position needs fixing
    */
-  private static needsPositionFix(row: any, mapping: Record<string, string>): boolean {
+  private static needsPositionFix(row: Record<string, unknown>, mapping: Record<string, string>): boolean {
     const positionColumn = mapping.position
     if (!positionColumn) return true
     
@@ -86,7 +86,7 @@ export class SmartCSVFixer {
   /**
    * Generate position from sector information
    */
-  private static generatePositionFromSector(row: any, mapping: Record<string, string>): string | null {
+  private static generatePositionFromSector(row: Record<string, unknown>, mapping: Record<string, string>): string | null {
     // Try to get sector from tags or sektör column
     const tagsColumn = mapping.tags || 'Sektör'
     const sector = row[tagsColumn] || ''
@@ -137,7 +137,7 @@ export class SmartCSVFixer {
   /**
    * Check if status needs fixing
    */
-  private static needsStatusFix(row: any, mapping: Record<string, string>): boolean {
+  private static needsStatusFix(row: Record<string, unknown>, mapping: Record<string, string>): boolean {
     const statusColumn = mapping.status
     if (!statusColumn) return false
     
@@ -153,7 +153,7 @@ export class SmartCSVFixer {
   /**
    * Normalize Turkish status values to English
    */
-  private static normalizeStatus(row: any, mapping: Record<string, string>): string | null {
+  private static normalizeStatus(row: Record<string, unknown>, mapping: Record<string, string>): string | null {
     const statusColumn = mapping.status
     if (!statusColumn) return null
     
@@ -184,7 +184,7 @@ export class SmartCSVFixer {
   /**
    * Check if email needs fixing
    */
-  private static needsEmailFix(row: any, mapping: Record<string, string>): boolean {
+  private static needsEmailFix(row: Record<string, unknown>, mapping: Record<string, string>): boolean {
     const emailColumn = mapping.contactEmail
     if (!emailColumn) return false
     
@@ -200,7 +200,7 @@ export class SmartCSVFixer {
   /**
    * Clean email address
    */
-  private static cleanEmail(row: any, mapping: Record<string, string>): string | null {
+  private static cleanEmail(row: Record<string, unknown>, mapping: Record<string, string>): string | null {
     const emailColumn = mapping.contactEmail
     if (!emailColumn) return null
     
@@ -224,7 +224,7 @@ export class SmartCSVFixer {
   /**
    * Check if location needs fixing
    */
-  private static needsLocationFix(row: any, mapping: Record<string, string>): boolean {
+  private static needsLocationFix(row: Record<string, unknown>, mapping: Record<string, string>): boolean {
     const locationColumn = mapping.location
     if (!locationColumn) return false
     
@@ -235,7 +235,7 @@ export class SmartCSVFixer {
   /**
    * Standardize location names
    */
-  private static standardizeLocation(row: any, mapping: Record<string, string>): string | null {
+  private static standardizeLocation(row: Record<string, unknown>, mapping: Record<string, string>): string | null {
     const locationColumn = mapping.location
     if (!locationColumn) return null
     
@@ -283,7 +283,7 @@ export class SmartCSVFixer {
   /**
    * Pre-process CSV data before validation
    */
-  static preprocessData(data: any[]): any[] {
+  static preprocessData(data: Record<string, unknown>[]): Record<string, unknown>[] {
     return data.map(row => {
       const processed = { ...row }
       

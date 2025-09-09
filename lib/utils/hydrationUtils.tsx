@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import type { JSONObject, JSONValue } from '@/types/strict'
 
 // Re-export date utilities for convenience
 export { 
@@ -181,7 +182,7 @@ export function useHydrationSafeAnimation(initialState = false) {
  * Prevents errors when server and client data might differ
  */
 export function safeGet<T>(
-  obj: any, 
+  obj: JSONObject | null | undefined, 
   path: string, 
   defaultValue: T
 ): T {
@@ -253,8 +254,8 @@ export function validateListKeys<T extends { id?: string | number }>(
  */
 export function logHydrationMismatch(
   componentName: string, 
-  serverValue: any, 
-  clientValue: any
+  serverValue: JSONValue, 
+  clientValue: JSONValue
 ) {
   if (process.env.NODE_ENV === 'development') {
     console.warn(

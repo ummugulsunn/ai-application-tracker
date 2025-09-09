@@ -3,7 +3,7 @@
 import React from 'react'
 import { useReminders } from '@/lib/hooks/useReminders'
 import { Button } from '@/components/ui/Button'
-import { LoadingStates } from '@/components/ui/LoadingStates'
+import { PageLoading } from '@/components/ui/LoadingStates'
 import { formatDistanceToNow, isPast } from 'date-fns'
 import { REMINDER_TYPE_ICONS } from '@/types/reminder'
 import Link from 'next/link'

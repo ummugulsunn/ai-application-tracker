@@ -1,4 +1,5 @@
 import { Application } from '@/types/application'
+import type { JSONValue } from '@/types/strict'
 
 export interface DuplicateMatch {
   existingApplication: Application
@@ -437,10 +438,10 @@ export function generateMergeSuggestions(
  * Choose the best value between two options based on type and quality
  */
 function chooseBestValue(
-  newValue: any,
-  existingValue: any,
+  newValue: string | undefined | null,
+  existingValue: string | undefined | null,
   type: 'string' | 'email' | 'url' | 'enum'
-): any {
+): string | undefined {
   // If only one has a value, use it
   if (!newValue && existingValue) return existingValue
   if (newValue && !existingValue) return newValue

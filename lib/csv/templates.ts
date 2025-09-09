@@ -493,7 +493,7 @@ export class CSVTemplateSystem {
   /**
    * Generate sample data for testing
    */
-  static generateSampleData(templateId: string, count: number = 10): any[] {
+  static generateSampleData(templateId: string, count: number = 10): Record<string, unknown>[] {
     const template = this.getTemplate(templateId)
     if (!template) {
       throw new Error(`Template not found: ${templateId}`)
@@ -518,11 +518,11 @@ export class CSVTemplateSystem {
 
     const sampleStatuses = ['Applied', 'Pending', 'Interviewing', 'Offered', 'Rejected']
 
-    const data: any[] = []
+    const data: Record<string, unknown>[] = []
     const headers = template.fieldMappings.map(m => m.csvColumn)
 
     for (let i = 0; i < count; i++) {
-      const row: any = {}
+      const row: Record<string, unknown> = {}
       
       for (const mapping of template.fieldMappings) {
         const field = mapping.applicationField

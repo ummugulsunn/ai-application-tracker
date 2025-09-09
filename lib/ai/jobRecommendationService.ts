@@ -391,7 +391,7 @@ Generate realistic job recommendations with actual company names and detailed jo
     status?: string,
     limit: number = 20
   ): Promise<JobRecommendation[]> {
-    const where: any = { userId };
+    const where: Record<string, unknown> = { userId };
     if (status) {
       where.status = status;
     }

@@ -1,0 +1,269 @@
+/* Import Swagger UI CSS */
+@import 'swagger-ui-react/swagger-ui.css';
+
+/* Custom overrides for better integration */
+.swagger-ui {
+  font-family: inherit;
+}
+
+.swagger-ui .topbar {
+  display: none;
+}
+
+.swagger-ui .info {
+  margin: 20px 0;
+}
+
+.swagger-ui .info .title {
+  color: #1f2937;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.swagger-ui .info .description {
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.swagger-ui .scheme-container {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.swagger-ui .opblock.opblock-get {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.swagger-ui .opblock.opblock-put {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.swagger-ui .opblock.opblock-delete {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.swagger-ui .opblock.opblock-patch {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.swagger-ui .opblock-summary-method {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.swagger-ui .opblock-summary-path {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.swagger-ui .opblock-description-wrapper p {
+  color: #4b5563;
+  margin: 0.5rem 0;
+}
+
+.swagger-ui .parameter__name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.swagger-ui .parameter__type {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.swagger-ui .response-col_status {
+  font-weight: 600;
+}
+
+.swagger-ui .response-col_description {
+  color: #4b5563;
+}
+
+.swagger-ui .btn {
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.swagger-ui .btn.execute {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.swagger-ui .btn.execute:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.swagger-ui .btn.cancel {
+  background-color: #6b7280;
+  border-color: #6b7280;
+}
+
+.swagger-ui .btn.cancel:hover {
+  background-color: #4b5563;
+  border-color: #4b5563;
+}
+
+.swagger-ui .model-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.swagger-ui .model-title {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.swagger-ui .property-row {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.swagger-ui .property-row:last-child {
+  border-bottom: none;
+}
+
+.swagger-ui .prop-name {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.swagger-ui .prop-type {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.swagger-ui .prop-format {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+/* Try it out section styling */
+.swagger-ui .try-out__btn {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.swagger-ui .try-out__btn:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* Response section styling */
+.swagger-ui .responses-inner {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.swagger-ui .response .response-col_status {
+  background: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Code highlighting */
+.swagger-ui .highlight-code {
+  background: #1f2937;
+  color: #f9fafb;
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.swagger-ui .highlight-code .hljs {
+  background: transparent;
+  color: inherit;
+}
+
+/* Authentication section */
+.swagger-ui .auth-wrapper {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.swagger-ui .auth-wrapper .auth-container {
+  background: transparent;
+}
+
+/* Filter section */
+.swagger-ui .filter-container {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.swagger-ui .filter .operation-filter-input {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.swagger-ui .filter .operation-filter-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading states */
+.swagger-ui .loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+/* Error states */
+.swagger-ui .errors-wrapper {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.swagger-ui .errors-wrapper .error-wrapper {
+  color: #dc2626;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .swagger-ui .opblock-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .swagger-ui .opblock-summary-method {
+    margin-bottom: 0.5rem;
+  }
+  
+  .swagger-ui .parameters-container {
+    overflow-x: auto;
+  }
+  
+  .swagger-ui .responses-table {
+    overflow-x: auto;
+  }
+}

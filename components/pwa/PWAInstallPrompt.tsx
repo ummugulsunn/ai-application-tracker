@@ -45,10 +45,10 @@ export function PWAInstallPrompt() {
             
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold text-gray-900">
-                Install App
+                Masaüstüne Ekle
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Add AI Application Tracker to your home screen for quick access and offline use.
+                AI İş Başvuru Takipçisi'ni masaüstünüze ekleyin. Komut satırı kullanmadan direkt erişim!
               </p>
               
               <div className="flex items-center space-x-2 mt-3">
@@ -57,7 +57,7 @@ export function PWAInstallPrompt() {
                   onClick={handleInstall}
                   className="text-xs"
                 >
-                  Install
+                  Yükle
                 </Button>
                 <Button
                   variant="outline"
@@ -65,7 +65,7 @@ export function PWAInstallPrompt() {
                   onClick={handleDismiss}
                   className="text-xs"
                 >
-                  Not now
+                  Şimdi değil
                 </Button>
               </div>
             </div>
@@ -98,7 +98,7 @@ export function PWAInstallButton({ className = '' }: { className?: string }) {
       className={className}
     >
       <DevicePhoneMobileIcon className="w-4 h-4 mr-2" />
-      Install App
+      Uygulamayı Yükle
     </Button>
   )
 }

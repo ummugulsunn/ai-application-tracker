@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { LoadingStates } from '@/components/ui/LoadingStates';
+import { PageLoading } from '@/components/ui/LoadingStates';
 import { ErrorNotification } from '@/components/ui/ErrorNotification';
 import { HelpTooltip } from '@/components/ui/HelpTooltip';
 

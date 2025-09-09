@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { 
   ChartBarIcon, 
-  TrendingUpIcon, 
-  TrendingDownIcon,
+  ArrowTrendingUpIcon as TrendingUpIcon, 
+  ArrowTrendingDownIcon as TrendingDownIcon,
   ArrowDownTrayIcon,
   FunnelIcon,
   CalendarIcon,
@@ -31,7 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { HelpTooltip } from '../ui/HelpTooltip'
-import { LoadingStates } from '../ui/LoadingStates'
+import { PageLoading } from '../ui/LoadingStates'
 import { AccessibleMotion } from '../ui/AccessibilityWrapper'
 import { Application } from '@/types/application'
 

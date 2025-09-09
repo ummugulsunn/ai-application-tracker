@@ -156,6 +156,30 @@ export default function Header({ onAddNew, onImport, onExport, onShowHelp }: Hea
                 </Button>
               </Link>
 
+              <Link href="/interview-prep">
+                <Button
+                  variant="outline"
+                  leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>}
+                  className="focus-visible-ring"
+                >
+                  Interview Prep
+                </Button>
+              </Link>
+
+              <Link href="/contacts">
+                <Button
+                  variant="outline"
+                  leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                  </svg>}
+                  className="focus-visible-ring"
+                >
+                  Contacts
+                </Button>
+              </Link>
+
               <Link href="/integrations">
                 <Button
                   variant="outline"
@@ -165,6 +189,30 @@ export default function Header({ onAddNew, onImport, onExport, onShowHelp }: Hea
                   className="focus-visible-ring"
                 >
                   Integrations
+                </Button>
+              </Link>
+
+              <Link href="/automation">
+                <Button
+                  variant="outline"
+                  leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>}
+                  className="focus-visible-ring"
+                >
+                  Automation
+                </Button>
+              </Link>
+
+              <Link href="/docs/api">
+                <Button
+                  variant="outline"
+                  leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>}
+                  className="focus-visible-ring"
+                >
+                  API Docs
                 </Button>
               </Link>
 
@@ -366,6 +414,103 @@ export default function Header({ onAddNew, onImport, onExport, onShowHelp }: Hea
                     Export Data
                   </Button>
                 )}
+
+                {/* Navigation Links for Mobile */}
+                <div className="border-t border-gray-200 pt-3 mt-3 space-y-2">
+                  <Link href="/reminders" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<BellIcon className="w-4 h-4" />}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      Reminders
+                    </Button>
+                  </Link>
+
+                  <Link href="/job-recommendations" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091z" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      AI Jobs
+                    </Button>
+                  </Link>
+
+                  <Link href="/resume-tools" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      Resume Tools
+                    </Button>
+                  </Link>
+
+                  <Link href="/interview-prep" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      Interview Prep
+                    </Button>
+                  </Link>
+
+                  <Link href="/contacts" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      Contacts
+                    </Button>
+                  </Link>
+
+                  <Link href="/integrations" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      Integrations
+                    </Button>
+                  </Link>
+
+                  <Link href="/automation" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      Automation
+                    </Button>
+                  </Link>
+
+                  <Link href="/docs/api" onClick={closeMenu}>
+                    <Button
+                      variant="outline"
+                      leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>}
+                      className="w-full justify-center focus-visible-ring"
+                    >
+                      API Docs
+                    </Button>
+                  </Link>
+                </div>
 
                 {onShowHelp && (
                   <Button

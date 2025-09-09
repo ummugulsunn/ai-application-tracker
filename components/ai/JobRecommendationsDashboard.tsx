@@ -16,7 +16,7 @@ import {
   CurrencyDollarIcon,
   BuildingOfficeIcon,
   ClockIcon,
-  RefreshIcon,
+  ArrowPathIcon as RefreshIcon,
   FunnelIcon,
   StarIcon
 } from '@heroicons/react/24/outline';

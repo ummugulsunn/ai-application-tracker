@@ -2,11 +2,12 @@
 
 import React from 'react'
 import { ErrorHandler, ErrorFactory } from '@/lib/errorHandling'
+import type { JSONObject, JSONValue, ApplicationActionData } from '@/types/strict'
 
 export interface OfflineAction {
   id: string
   type: string
-  data: any
+  data: JSONObject
   timestamp: number
   retryCount: number
   maxRetries: number
@@ -20,7 +21,7 @@ export interface SyncResult {
   success: boolean
   actionId: string
   error?: Error
-  response?: any
+  response?: JSONValue
 }
 
 export class OfflineSyncManager {
@@ -339,7 +340,7 @@ export class OfflineSyncManager {
   }
 
   // Utility methods for common actions
-  addApplicationAction(data: any, priority: 'low' | 'medium' | 'high' = 'medium'): string {
+  addApplicationAction(data: ApplicationActionData, priority: 'low' | 'medium' | 'high' = 'medium'): string {
     return this.addAction({
       type: 'ADD_APPLICATION',
       data,
@@ -350,7 +351,7 @@ export class OfflineSyncManager {
     })
   }
 
-  updateApplicationAction(id: string, data: any, priority: 'low' | 'medium' | 'high' = 'medium'): string {
+  updateApplicationAction(id: string, data: ApplicationActionData, priority: 'low' | 'medium' | 'high' = 'medium'): string {
     return this.addAction({
       type: 'UPDATE_APPLICATION',
       data: { id, ...data },

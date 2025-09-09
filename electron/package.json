@@ -1,0 +1,39 @@
+{
+  "name": "ai-application-tracker-desktop",
+  "version": "1.0.0",
+  "description": "AI Application Tracker Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.aiapptracker.desktop",
+    "productName": "AI Application Tracker",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "../.next/**/*",
+      "../public/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "../public/icons/icon-512x512.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "../public/icons/icon-512x512.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "../public/icons/icon-512x512.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  }
+}

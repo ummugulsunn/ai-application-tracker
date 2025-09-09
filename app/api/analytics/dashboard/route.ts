@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function calculateAdvancedAnalytics(applications: any[], dateRange?: any, filters?: any) {
+function calculateAdvancedAnalytics(applications: Record<string, unknown>[], dateRange?: Record<string, unknown>, filters?: Record<string, unknown>) {
   // Filter applications based on date range and filters
   let filteredApps = applications
 
@@ -174,7 +174,7 @@ function calculateAdvancedAnalytics(applications: any[], dateRange?: any, filter
   }
 }
 
-function generateTimeSeriesData(applications: any[]) {
+function generateTimeSeriesData(applications: Record<string, unknown>[]) {
   const monthlyData = new Map()
 
   applications.forEach(app => {
@@ -208,7 +208,7 @@ function generateTimeSeriesData(applications: any[]) {
   return Array.from(monthlyData.values()).sort((a, b) => a.month.localeCompare(b.month))
 }
 
-function calculateStatusDistribution(applications: any[]) {
+function calculateStatusDistribution(applications: Record<string, unknown>[]) {
   const distribution = new Map()
   
   applications.forEach(app => {
@@ -223,7 +223,7 @@ function calculateStatusDistribution(applications: any[]) {
   }))
 }
 
-function calculateCompanyPerformance(applications: any[]) {
+function calculateCompanyPerformance(applications: Record<string, unknown>[]) {
   const companyStats = new Map()
 
   applications.forEach(app => {
@@ -261,7 +261,7 @@ function calculateCompanyPerformance(applications: any[]) {
     .slice(0, 10) // Top 10 companies
 }
 
-function calculateLocationAnalysis(applications: any[]) {
+function calculateLocationAnalysis(applications: Record<string, unknown>[]) {
   const locationStats = new Map()
 
   applications.forEach(app => {
@@ -305,14 +305,14 @@ function calculateLocationAnalysis(applications: any[]) {
       interviewRate: stats.applications > 0 ? (stats.interviews / stats.applications) * 100 : 0,
       offerRate: stats.applications > 0 ? (stats.offers / stats.applications) * 100 : 0,
       avgSalary: stats.salaries.length > 0 
-        ? stats.salaries.reduce((sum, sal) => sum + sal, 0) / stats.salaries.length 
+        ? stats.salaries.reduce((sum: number, sal: number) => sum + sal, 0) / stats.salaries.length 
         : 0
     }))
     .sort((a, b) => b.applications - a.applications)
     .slice(0, 10) // Top 10 locations
 }
 
-function calculateMonthlyStats(applications: any[]) {
+function calculateMonthlyStats(applications: Record<string, unknown>[]) {
   const last12Months = []
   const now = new Date()
 
@@ -341,21 +341,23 @@ function calculateMonthlyStats(applications: any[]) {
   return last12Months
 }
 
-function calculateWeeklyActivity(applications: any[]) {
+function calculateWeeklyActivity(applications: Record<string, unknown>[]) {
   const weeklyData = new Array(7).fill(0).map((_, index) => ({
     day: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][index],
     applications: 0
   }))
 
   applications.forEach(app => {
-    const dayOfWeek = new Date(app.appliedDate).getDay()
-    weeklyData[dayOfWeek].applications++
+    const dayOfWeek = new Date(app.appliedDate as string).getDay()
+    if (weeklyData[dayOfWeek]) {
+      weeklyData[dayOfWeek].applications++
+    }
   })
 
   return weeklyData
 }
 
-function generateInsights(applications: any[], metrics: any) {
+function generateInsights(applications: Record<string, unknown>[], metrics: Record<string, unknown>) {
   const insights = []
 
   // Performance insights
@@ -405,7 +407,7 @@ function generateInsights(applications: any[], metrics: any) {
   return insights
 }
 
-function generateRecommendations(applications: any[], metrics: any) {
+function generateRecommendations(applications: Record<string, unknown>[], metrics: Record<string, unknown>) {
   const recommendations = []
 
   // Interview rate recommendations

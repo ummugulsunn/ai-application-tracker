@@ -151,7 +151,7 @@ export class FieldDetector {
   /**
    * Detect column mappings with enhanced algorithms and template-based auto-mapping
    */
-  static detectColumns(csvColumns: string[], sampleData?: any[]): ColumnDetectionResult {
+  static detectColumns(csvColumns: string[], sampleData?: Record<string, unknown>[]): ColumnDetectionResult {
     // Normalize column names for better matching
     const normalizedColumns = csvColumns.map(col => this.normalizeColumnName(col))
     
@@ -252,7 +252,7 @@ export class FieldDetector {
   static detectColumnsWithTemplate(
     csvColumns: string[], 
     templateId: string, 
-    sampleData?: any[]
+    sampleData?: Record<string, unknown>[]
   ): ColumnDetectionResult {
     const template = CSVTemplateSystem.getTemplate(templateId)
     if (!template) {
@@ -290,7 +290,7 @@ export class FieldDetector {
   private static calculateFieldScore(
     csvColumn: string, 
     config: typeof this.FIELD_MAPPINGS[keyof typeof this.FIELD_MAPPINGS],
-    sampleData?: any[]
+    sampleData?: Record<string, unknown>[]
   ): number {
     const normalizedColumn = this.normalizeColumnName(csvColumn)
     const columnLower = normalizedColumn.toLowerCase().trim()
@@ -350,7 +350,7 @@ export class FieldDetector {
    */
   private static analyzeColumnContent(
     csvColumn: string, 
-    sampleData: any[], 
+    sampleData: Record<string, unknown>[], 
     config: typeof this.FIELD_MAPPINGS[keyof typeof this.FIELD_MAPPINGS]
   ): number {
     const values = sampleData
@@ -495,7 +495,7 @@ export class FieldDetector {
   /**
    * Enhanced field matching with Turkish character support
    */
-  private static enhancedFieldMatch(csvColumn: string, fieldConfig: any): number {
+  private static enhancedFieldMatch(csvColumn: string, fieldConfig: Record<string, unknown>): number {
     const normalizedColumn = this.normalizeColumnName(csvColumn).toLowerCase()
     
     // Direct Turkish mappings

@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { Application } from '@/types/application';
+import type { UserProfile, TrendAnalysis as StrictTrendAnalysis, MonthlyStats } from '@/types/strict';
 
 // Initialize OpenAI client with enhanced error handling
 let openai: OpenAI | null = null;
@@ -222,7 +223,7 @@ export class AIService {
    */
   async analyzeApplication(
     application: Application,
-    userProfile?: any
+    userProfile?: UserProfile
   ): Promise<ApplicationAnalysis> {
     if (!isAIServiceAvailable()) {
       return this.generateFallbackApplicationAnalysis(application);
@@ -376,14 +377,19 @@ export class AIService {
     const responseRate = this.calculateResponseRate(applications);
     const interviewRate = this.calculateInterviewRate(applications);
     
-    const trend = this.determineTrend(monthlyStats);
+    const trendResult = this.determineTrend(monthlyStats);
     const insights = this.generateInsights(applications, successRate, responseRate);
+    const trend: StrictTrendAnalysis = {
+      direction: trendResult.direction,
+      score: trendResult.score,
+      monthlyStats: monthlyStats
+    };
     const recommendations = this.generateRecommendations(applications, trend);
     const performanceMetrics = this.calculatePerformanceMetrics(applications);
 
     return {
-      overallTrend: trend.direction,
-      trendScore: trend.score,
+      overallTrend: trendResult.direction,
+      trendScore: trendResult.score,
       confidence: 50,
       keyInsights: insights,
       recommendations: recommendations.map(rec => ({
@@ -446,7 +452,7 @@ export class AIService {
   }
 
   // Private helper methods
-  private buildApplicationAnalysisPrompt(application: Application, userProfile?: any): string {
+  private buildApplicationAnalysisPrompt(application: Application, userProfile?: UserProfile): string {
     return `
 Analyze this job application and provide insights:
 
@@ -463,8 +469,8 @@ Notes: ${application.notes || 'None'}
 ${userProfile ? `
 User Profile:
 Skills: ${userProfile.skills?.join(', ') || 'Not provided'}
-Experience Level: ${userProfile.experienceLevel || 'Not provided'}
-Industries: ${userProfile.industries?.join(', ') || 'Not provided'}
+Experience Level: ${userProfile.experience?.join(', ') || 'Not provided'}
+Industries: ${userProfile.preferences.industries?.join(', ') || 'Not provided'}
 ` : ''}
 
 Please provide a JSON response with the following structure:
@@ -728,7 +734,7 @@ Date Range: ${applications.length > 0 ? `${new Date(Math.min(...applications.map
     return applications.length > 0 ? (responded / applications.length) * 100 : 0;
   }
 
-  private determineTrend(monthlyStats: any[]): { direction: 'improving' | 'declining' | 'stable'; score: number } {
+  private determineTrend(monthlyStats: MonthlyStats[]): { direction: 'improving' | 'declining' | 'stable'; score: number } {
     if (monthlyStats.length < 2) {
       return { direction: 'stable', score: 0 };
     }
@@ -780,7 +786,7 @@ Date Range: ${applications.length > 0 ? `${new Date(Math.min(...applications.map
     return insights;
   }
 
-  private generateRecommendations(applications: Application[], trend: any): string[] {
+  private generateRecommendations(applications: Application[], trend: StrictTrendAnalysis): string[] {
     const recommendations: string[] = [];
     
     if (trend.direction === 'declining') {
@@ -925,7 +931,7 @@ Date Range: ${applications.length > 0 ? `${new Date(Math.min(...applications.map
       },
       trends: stats.trends,
       keyInsights: this.generateEnhancedInsights(applications, stats.successRate, stats.responseRate, this.calculateInterviewRate(applications)),
-      actionableRecommendations: this.generateEnhancedRecommendations(applications, { direction: 'stable', score: 0, confidence: 50 })
+      actionableRecommendations: this.generateEnhancedRecommendations(applications, { direction: 'stable', score: 0, monthlyStats: [] })
     };
   }
 
@@ -1046,7 +1052,7 @@ Date Range: ${applications.length > 0 ? `${new Date(Math.min(...applications.map
     return insights.slice(0, 5); // Return top 5 insights
   }
 
-  private generateEnhancedRecommendations(applications: Application[], trend: any): Array<{
+  private generateEnhancedRecommendations(applications: Application[], trend: StrictTrendAnalysis): Array<{
     priority: 'high' | 'medium' | 'low';
     action: string;
     reasoning: string;
