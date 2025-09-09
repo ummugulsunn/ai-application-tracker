@@ -47,7 +47,7 @@ function DateDisplay({ date, showRelative = false }: { date: string | Date; show
 }
 
 // Internal ApplicationTable component without error boundary
-function ApplicationTableInternal() {
+function ApplicationTableInternal({ onAddNew }: { onAddNew?: () => void }) {
   const {
     getFilteredApplications,
     deleteApplication,
@@ -407,8 +407,11 @@ function ApplicationTableInternal() {
             <p className="text-gray-500 mb-4">
               {searchQuery ? 'Try adjusting your search terms' : 'Get started by adding your first application'}
             </p>
-            {!searchQuery && (
-              <button className={getButtonClasses(animationsEnabled, 'primary')}>
+            {!searchQuery && onAddNew && (
+              <button 
+                onClick={onAddNew}
+                className={getButtonClasses(animationsEnabled, 'primary')}
+              >
                 Add Application
               </button>
             )}
@@ -517,7 +520,7 @@ function ApplicationTableFallback() {
 }
 
 // Main export with hydration error boundary - this replaces the default export
-export default function ApplicationTable() {
+export default function ApplicationTable({ onAddNew }: { onAddNew?: () => void }) {
   const handleHydrationError = (error: Error, errorInfo: React.ErrorInfo) => {
     console.error('Hydration error in ApplicationTable:', error, errorInfo)
 
@@ -538,7 +541,7 @@ export default function ApplicationTable() {
       fallback={<ApplicationTableFallback />}
       onHydrationError={handleHydrationError}
     >
-      <ApplicationTableInternal />
+      <ApplicationTableInternal onAddNew={onAddNew} />
     </HydrationErrorBoundary>
   )
 }

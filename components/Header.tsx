@@ -20,7 +20,7 @@ import { Button } from './ui/Button'
 import { HelpTooltip } from './ui/HelpTooltip'
 import { AccessibleMotion } from './ui/AccessibilityWrapper'
 import { useAuthStore } from '@/store/authStore'
-import { AuthModal } from './auth/AuthModal'
+import { SimpleAuth } from './auth/SimpleAuth'
 import { GuestModeIndicator } from './auth/GuestModeBanner'
 import { ProfileButton } from './profile/ProfileButton'
 
@@ -565,10 +565,11 @@ export default function Header({ onAddNew, onImport, onExport, onShowHelp }: Hea
         </AnimatePresence>
 
         {/* Authentication Modal */}
-        <AuthModal
+        <SimpleAuth
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
-          initialMode={authMode}
+          mode={authMode}
+          onModeChange={setAuthMode}
         />
       </div>
     </header>

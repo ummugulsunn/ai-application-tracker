@@ -70,6 +70,22 @@ export default function Home() {
     completeStep('add-application')
   }
 
+  const handleAddNew = () => {
+    setIsAddModalOpen(true)
+  }
+
+  const handleImport = () => {
+    setIsImportModalOpen(true)
+  }
+
+  const handleExport = () => {
+    setIsExportModalOpen(true)
+  }
+
+  const handleShowHelp = () => {
+    showTour()
+  }
+
   const handleStartTour = () => {
     try {
       completeStep('explore-features')
@@ -101,9 +117,9 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header 
         data-tour="header"
-        onAddNew={handleAddApplication}
-        onImport={() => setIsImportModalOpen(true)}
-        onExport={() => setIsExportModalOpen(true)}
+        onAddNew={handleAddNew}
+        onImport={handleImport}
+        onExport={handleExport}
         onShowHelp={handleShowHelp}
       />
       
@@ -145,7 +161,7 @@ export default function Home() {
             onManageBackups={() => setIsBackupManagerOpen(true)}
           />
           
-          <ApplicationTable data-tour="application-table" />
+          <ApplicationTable data-tour="application-table" onAddNew={handleAddNew} />
 
           {/* Progressive Disclosure - shown when user has applications */}
           {applications.length > 0 && (
