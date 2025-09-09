@@ -784,7 +784,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Built with ❤️ by [ummugulsun](https://github.com/ummugulsunn)**
 
 - 🌐 **Portfolio**: [ummugulsun.com](https://ummugulsun.me)
-- 💼 **LinkedIn**: [linkedin.com/in/ummugulsunturkmen](linkedin.com/in/ummugulsunturkmen)
+- 💼 **LinkedIn**: [linkedin.com/in/ummugulsunturkmen](https://www.linkedin.com/in/ummugulsunturkmen/)
 - 🐙 **GitHub**: [github.com/ummugulsunn](https://github.com/ummugulsunn)
 - 📧 **Email**: [ummugulsunturkmen@gmail.com](mailto:ummugulsunturkmen@gmail.com)
 
