@@ -83,10 +83,6 @@ export default function Home() {
   }
 
   const handleShowHelp = () => {
-    showTour()
-  }
-
-  const handleStartTour = () => {
     try {
       completeStep('explore-features')
       // Add a small delay to ensure DOM is ready
@@ -98,7 +94,7 @@ export default function Home() {
     }
   }
 
-  const handleShowHelp = () => {
+  const handleStartTour = () => {
     try {
       // Add a small delay to ensure DOM is ready
       setTimeout(() => {
