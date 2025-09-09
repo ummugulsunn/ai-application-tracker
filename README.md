@@ -781,12 +781,12 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 **Contact & Professional Links**
 
-**Built with ❤️ by [Your Name](https://github.com/yourusername)**
+**Built with ❤️ by [ummugulsun](https://github.com/ummugulsunn)**
 
-- 🌐 **Portfolio**: [yourportfolio.com](https://yourportfolio.com)
-- 💼 **LinkedIn**: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
-- 🐙 **GitHub**: [github.com/yourusername](https://github.com/yourusername)
-- 📧 **Email**: [your.email@example.com](mailto:your.email@example.com)
+- 🌐 **Portfolio**: [ummugulsun.com](https://yourportfolio.com)
+- 💼 **LinkedIn**: [linkedin.com/in/yourprofile](https://ummugulsun.me)
+- 🐙 **GitHub**: [github.com/ummugulsunn](https://github.com/ummugulsunn)
+- 📧 **Email**: [ummugulsunturkmen@gmail.com](mailto:ummugulsunturkmen@gmail.com)
 
 ---
 
@@ -866,10 +866,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📈 **Project Stats**
 
-![GitHub stars](https://img.shields.io/github/stars/yourusername/ai-application-tracker?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/ai-application-tracker?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/ai-application-tracker)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/ai-application-tracker)
+![GitHub stars](https://img.shields.io/github/stars/ummugulsunn/ai-application-tracker?style=social)
+![GitHub forks](https://img.shields.io/github/forks/ummugulsunn/ai-application-tracker?style=social)
+![GitHub issues](https://img.shields.io/github/issues/ummugulsunn/ai-application-tracker)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/ummugulsunn/ai-application-tracker)
 
 **Built with ❤️ by ummugulsun(https://github.com/ummugulsunn)**
 
