@@ -783,8 +783,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Built with ❤️ by [ummugulsun](https://github.com/ummugulsunn)**
 
-- 🌐 **Portfolio**: [ummugulsun.com](https://yourportfolio.com)
-- 💼 **LinkedIn**: [linkedin.com/in/yourprofile](https://ummugulsun.me)
+- 🌐 **Portfolio**: [ummugulsun.com](https://ummugulsun.me)
+- 💼 **LinkedIn**: [linkedin.com/in/ummugulsunturkmen](linkedin.com/in/ummugulsunturkmen)
 - 🐙 **GitHub**: [github.com/ummugulsunn](https://github.com/ummugulsunn)
 - 📧 **Email**: [ummugulsunturkmen@gmail.com](mailto:ummugulsunturkmen@gmail.com)
 
@@ -871,7 +871,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ![GitHub issues](https://img.shields.io/github/issues/ummugulsunn/ai-application-tracker)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/ummugulsunn/ai-application-tracker)
 
-**Built with ❤️ by ummugulsun(https://github.com/ummugulsunn)**
+**Built with ❤️ by [ummugulsun](https://github.com/ummugulsunn)**
 
 ---
 
