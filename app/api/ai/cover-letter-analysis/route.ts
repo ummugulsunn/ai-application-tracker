@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
     // Check rate limiting
     if (!checkRateLimit(userId)) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'RATE_LIMIT_EXCEEDED', 
-            message: 'Too many AI requests. Please try again later.' 
-          } 
+        {
+          success: false,
+          error: {
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: 'Too many AI requests. Please try again later.'
+          }
         },
         { status: 429 }
       );
@@ -77,25 +77,25 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'VALIDATION_ERROR', 
+        {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: error.errors 
-          } 
+            details: error.errors
+          }
         },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'INTERNAL_ERROR', 
-          message: 'An unexpected error occurred' 
-        } 
+      {
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An unexpected error occurred'
+        }
       },
       { status: 500 }
     );
@@ -104,12 +104,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   return NextResponse.json(
-    { 
-      success: false, 
-      error: { 
-        code: 'METHOD_NOT_ALLOWED', 
-        message: 'GET method not supported for this endpoint' 
-      } 
+    {
+      success: false,
+      error: {
+        code: 'METHOD_NOT_ALLOWED',
+        message: 'GET method not supported for this endpoint'
+      }
     },
     { status: 405 }
   );
